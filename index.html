@@ -1,13 +1,778 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>react</title>
-  </head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenBank - Create an Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --color-bg: #2b2938;
+        --color-card-bg: #1c1c24;
+        --color-input-bg: #26262e;
+        --color-border: #2f2f3a;
+        --color-primary: #7e60e8;
+        --color-primary-hover: #6a4fd1;
+        --color-text-main: #ffffff;
+        --color-text-muted: #a1a1aa;
+        --color-text-placeholder: #6b7280;
+        --color-success: #10b981;
+        --shadow-color: rgba(0, 0, 0, 0.25);
+        --font-family: 'Inter', sans-serif;
+      }
+
+      .light-theme {
+        --color-bg: #f3f4f6;
+        --color-card-bg: #ffffff;
+        --color-input-bg: #f9fafb;
+        --color-border: #e5e7eb;
+        --color-primary: #7e60e8;
+        --color-primary-hover: #6a4fd1;
+        --color-text-main: #111827;
+        --color-text-muted: #6b7280;
+        --color-text-placeholder: #9ca3af;
+        --color-success: #10b981;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--color-bg);
+        font-family: var(--font-family);
+        color: var(--color-text-main);
+        height: 100vh;
+        width: 100vw;
+        overflow-x: hidden;
+      }
+
+      /* Layout & Utilities */
+      .app-container {
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .auth-card {
+        width: 100%;
+        max-width: 1000px;
+        min-height: 600px;
+        background-color: var(--color-card-bg);
+        border-radius: 16px;
+        box-shadow: 0 25px 50px -12px var(--shadow-color);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+      }
+
+      @media (min-width: 768px) {
+        .auth-card {
+          flex-direction: row;
+        }
+      }
+
+      /* Typography */
+      h1 { font-size: 2.25rem; }
+      h2 { font-size: 1.875rem; font-weight: 500; margin-bottom: 0.5rem; letter-spacing: 0.025em; }
+      
+      a {
+        color: var(--color-primary);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      a:hover { color: var(--color-primary-hover); text-decoration: underline; }
+
+      /* Branding Panel (Left) */
+      .branding-panel {
+        position: relative;
+        width: 100%;
+        height: 300px; /* Mobile height */
+        overflow: hidden;
+      }
+
+      @media (min-width: 768px) {
+        .branding-panel {
+          width: 50%;
+          height: auto;
+          min-height: 100%;
+        }
+      }
+      @media (min-width: 1024px) {
+        .branding-panel { width: 45%; }
+      }
+
+      .branding-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .branding-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(21, 21, 26, 0.3), transparent, rgba(21, 21, 26, 0.8));
+      }
+      
+      .branding-tint {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+
+      .branding-content {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        color: white;
+      }
+
+      .logo-circle {
+        background-color: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(4px);
+        padding: 2rem;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+      }
+
+      .brand-title {
+        font-weight: 400;
+        letter-spacing: 0.05em;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+      .brand-title strong { font-weight: 600; }
+
+      /* Form Panel (Right) */
+      .form-panel {
+        width: 100%;
+        padding: 2.5rem 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      @media (min-width: 768px) {
+        .form-panel {
+          width: 50%;
+          padding: 3rem;
+        }
+      }
+      @media (min-width: 1024px) {
+        .form-panel { width: 55%; padding: 4rem; }
+      }
+
+      .header-text { margin-bottom: 2rem; }
+      .sub-text { font-size: 0.875rem; color: var(--color-text-muted); }
+
+      /* Form Elements */
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      /* 
+         Grid System for Inputs 
+         Used for First Name/Last Name and Email/Phone side-by-side layout
+      */
+      .row {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      @media (min-width: 768px) {
+        .row { flex-direction: row; }
+      }
+      .col { flex: 1; }
+
+      .input-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      /* 
+         Shared styling for all inputs.
+         Note: input[type="tel"] is explicitly included to ensure the 
+         mobile number field matches the design of email and text inputs.
+      */
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="tel"], 
+      select,
+      textarea {
+        width: 100%;
+        background-color: var(--color-input-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        color: var(--color-text-main);
+        transition: all 0.2s;
+        outline: none;
+        font-family: inherit;
+        appearance: none;
+      }
+
+      /* Custom Arrow for Select */
+      select {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
+      }
+
+      input::placeholder { color: var(--color-text-placeholder); }
+
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 1px var(--color-primary);
+      }
+
+      /* Specific adjustment for pre-filled look */
+      input.has-border {
+        border-color: var(--color-primary);
+      }
+
+      .eye-btn {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--color-text-placeholder);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .eye-btn:hover { color: #d1d5db; }
+
+      /* Checkbox */
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-top: 0.25rem;
+      }
+      
+      .checkbox-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      input[type="checkbox"] {
+        appearance: none;
+        width: 1.25rem;
+        height: 1.25rem;
+        background-color: var(--color-card-bg);
+        border-radius: 0.25rem;
+        border: 1px solid var(--color-border);
+        cursor: pointer;
+      }
+
+      input[type="checkbox"]:checked {
+        background-color: var(--color-card-bg);
+        border-color: var(--color-primary);
+      }
+
+      .check-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 0.875rem;
+        height: 0.875rem;
+        color: var(--color-text-main);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.1s;
+      }
+
+      input[type="checkbox"]:checked + .check-icon {
+        opacity: 1;
+      }
+
+      .checkbox-label {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        user-select: none;
+      }
+      .checkbox-link {
+        color: var(--color-primary);
+        text-decoration: underline;
+        text-decoration-color: rgba(126, 96, 232, 0.5);
+        text-underline-offset: 2px;
+      }
+
+      /* Buttons */
+      .btn-primary {
+        width: 100%;
+        background-color: var(--color-primary);
+        color: white;
+        font-weight: 500;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        box-shadow: 0 4px 6px -1px rgba(126, 96, 232, 0.2);
+        margin-top: 0.5rem;
+        font-size: 1rem;
+      }
+      .btn-primary:hover { background-color: var(--color-primary-hover); }
+
+      .btn-danger {
+        background-color: #ef4444;
+        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+      }
+      .btn-danger:hover {
+        background-color: #dc2626;
+      }
+
+      .btn-success {
+        background-color: var(--color-success);
+        box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+      }
+      .btn-success:hover {
+        background-color: #059669;
+      }
+
+      .alert-success {
+        background-color: rgba(16, 185, 129, 0.1);
+        border: 1px solid var(--color-success);
+        color: var(--color-success);
+        border-radius: 0.5rem;
+        padding: 1rem;
+      }
+
+      .divider {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 1.5rem 0;
+      }
+      .divider-line {
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        background-color: var(--color-border);
+      }
+      .divider-text {
+        position: relative;
+        background-color: var(--color-card-bg);
+        padding: 0 1rem;
+        font-size: 0.75rem;
+        color: var(--color-text-placeholder);
+        z-index: 1;
+      }
+
+      .social-buttons {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .btn-social {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background-color: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-main);
+        padding: 0.625rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.875rem;
+        font-weight: 500;
+        font-family: var(--font-family);
+      }
+      .btn-social:hover { background-color: var(--color-input-bg); }
+
+      /* =========================================
+         Dashboard Styles
+         ========================================= */
+      .dashboard-layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        width: 100%;
+        background-color: var(--color-bg);
+      }
+
+      .dashboard-header {
+        background-color: var(--color-card-bg);
+        border-bottom: 1px solid var(--color-border);
+        padding: 0.75rem 0;
+      }
+
+      .header-content {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .header-logo-circle {
+        background-color: var(--color-primary);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .header-brand {
+        font-size: 1.125rem;
+      }
+
+      .sign-out-btn {
+        background: transparent;
+        border: none;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: color 0.2s;
+      }
+      .sign-out-btn:hover { color: var(--color-text-main); }
+
+      .dashboard-main {
+        flex: 1;
+        padding: 2rem 1rem;
+        display: flex;
+        justify-content: center;
+      }
+
+      .dashboard-container {
+        width: 100%;
+        max-width: 1000px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .dashboard-card {
+        background-color: var(--color-card-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      }
+
+      /* Welcome Card */
+      .welcome-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      @media (min-width: 640px) {
+        .welcome-card {
+          flex-direction: row;
+          align-items: center;
+        }
+      }
+
+      .welcome-text h2 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+      .welcome-text p {
+        font-size: 0.875rem;
+        color: var(--color-text-muted);
+      }
+
+      .welcome-info {
+        text-align: left;
+      }
+      @media (min-width: 640px) {
+        .welcome-info { text-align: right; }
+      }
+      .info-label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+      }
+      .info-value {
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      /* Security Card */
+      .security-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 3rem 1.5rem;
+      }
+
+      .security-icon-circle {
+        width: 64px;
+        height: 64px;
+        background-color: rgba(62, 130, 247, 0.1);
+        color: #3e82f7;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+
+      .security-card h3 {
+        font-size: 1.125rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .security-desc {
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+        max-width: 400px;
+        margin-bottom: 2rem;
+        line-height: 1.5;
+      }
+
+      .dots-pagination {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--color-border);
+      }
+      .dot.active {
+        background-color: #3e82f7;
+      }
+
+      /* Overview Card */
+      .overview-card h3 {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+      }
+
+      .total-balance {
+        margin-bottom: 2rem;
+      }
+      .balance-label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      }
+      .balance-amount {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--color-success);
+      }
+
+      .account-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      @media (min-width: 640px) {
+        .account-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .account-item {
+        background-color: var(--color-bg); /* Darker than card */
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+      .account-item:hover {
+        transform: translateY(-2px);
+        border-color: var(--color-primary);
+      }
+
+      .acc-name {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+      }
+      .acc-val {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      /* Actions Grid */
+      .actions-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      @media (min-width: 768px) {
+        .actions-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .action-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      
+      .action-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        border-color: rgba(126, 96, 232, 0.5);
+      }
+
+      .action-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+      
+      /* Specific colors for actions */
+      .icon-withdraw {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #ef4444; /* Red */
+      }
+      .icon-deposit {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #10b981; /* Green */
+      }
+      .icon-history {
+        background-color: rgba(59, 130, 246, 0.15);
+        color: #3b82f6; /* Blue */
+      }
+
+      .action-card h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+      
+      .action-desc {
+        font-size: 0.8125rem;
+        color: var(--color-text-muted);
+        line-height: 1.4;
+      }
+
+      /* SMS Notification Toast */
+      .sms-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 320px;
+        background: rgba(28, 28, 36, 0.95);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        overflow: hidden;
+        animation: slideIn 0.3s ease-out forwards;
+        backdrop-filter: blur(10px);
+      }
+      .light-theme .sms-notification {
+        background: rgba(255, 255, 255, 0.95);
+        color: #000;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      .sms-header {
+        padding: 10px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        border-bottom: 1px solid var(--color-border);
+      }
+      .light-theme .sms-header {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      .sms-body {
+        padding: 15px;
+        font-size: 0.875rem;
+        color: var(--color-text-main);
+        line-height: 1.4;
+      }
+
+      .sms-number {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        margin-bottom: 6px;
+        display: block;
+        font-weight: 500;
+      }
+
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "jspdf": "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm",
+        "jspdf-autotable": "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/+esm"
+      }
+    }
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>
