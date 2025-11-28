@@ -1,5 +1,5 @@
 {
-  "name": "OpenBank Auth UI",
+  "name": "OpenBank",
   "description": "A dark-themed, responsive authentication page featuring a split-screen layout with a cityscape visual and a registration form, matching the OpenBank design specification.",
   "requestFramePermissions": []
 }
