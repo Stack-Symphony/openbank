@@ -1,18 +1,128 @@
-# React + Vite
+# OpenBank 🏦
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, responsive digital banking frontend application built with React. This project represents **Week 1** of the development lifecycle, focusing on environment setup, component architecture, and high-fidelity UI/UX implementation.
 
-Currently, two official plugins are available:
+![OpenBank Dashboard Screenshot](https://capeitinitiative-my.sharepoint.com/:i:/g/personal/michelle_rammila_capaciti_org_za/IQCj7-bjWYQcQKv0P5RRAfUkAZhYx-dpOq2OBTTxVwvCWsM?e=CWQKdF)
+*(Replace this link with an actual screenshot of your dashboard)*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Features
 
-## React Compiler
+### 🔐 Authentication & Security
+*   **Secure Login/Registration:** Form validation including South African ID number (13-digit check) and mobile number formatting (+27).
+*   **Profile Management:** Edit personal details and toggle security settings.
+*   **Mock Security:** Visual simulation of Two-Factor Authentication (2FA) and password visibility toggles.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### 💳 Interactive Dashboard
+*   **3D Digital Card:** Interactive flip animation revealing sensitive card details (CVV, Expiry) on the back.
+*   **Account Overview:** Real-time summary of Savings, Checking, Business, and Investment account balances.
+*   **Responsive Design:** Fully responsive layout adapting from mobile (stacked) to desktop (split-screen/grid).
 
-Note: This will impact Vite dev & build performances.
+### 💸 Transaction Management
+*   **Deposits:** Support for simulated Card and EFT deposits.
+*   **Withdrawals:** Logic for EFT and "Instant Money" (Cash Send) with voucher code generation.
+*   **Internal Transfers:** Move funds seamlessly between internal accounts.
+*   **Notifications:** Simulated SMS toast notifications for every successful transaction.
 
-## Expanding the ESLint configuration
+### 📄 History & Statements
+*   **Transaction Log:** Detailed history of all account activities.
+*   **PDF Statements:** Client-side generation of professional PDF bank statements using `jspdf` and `jspdf-autotable`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🛠️ Tech Stack
+
+*   **Frontend Framework:** [React 19](https://react.dev/)
+*   **Language:** JavaScript (ES6+)
+*   **Styling:** Native CSS3 with CSS Variables (Theming support)
+*   **Icons:** Custom SVG Component Library (No external icon font dependencies)
+*   **Utilities:** `jspdf` (PDF Generation), `localStorage` (Mock Database persistence)
+
+---
+
+## 📂 Project Structure
+
+```bash
+OpenBank/
+├── index.html                 # Entry point & Global Styles
+├── index.js                   # React Root
+├── App.js                     # Main Router & Global State Manager
+└── components/
+    ├── CustomIcons.js         # SVG Icon System
+    ├── BrandingPanel.js       # Auth Screen Visuals
+    ├── RegisterForm.js        # Login/Signup Logic
+    ├── Dashboard.js           # Main User Interface
+    ├── AccountDetailsPage.js  # Specific Account History
+    ├── TransactionHistoryPage.js # Global History & PDF Export
+    ├── TransferPage.js        # Internal Transfer Form
+    ├── DepositPage.js         # Deposit Logic
+    ├── WithdrawPage.js        # Withdrawal Logic
+    └── ProfilePage.js         # User Settings
+```
+
+---
+
+## 🏁 Getting Started
+
+### Prerequisites
+*   Node.js (v18 or higher)
+*   npm or yarn
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/openbank-ui.git
+    cd openbank-ui
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Run the application:**
+    ```bash
+    npm start
+    ```
+
+4.  **Open in Browser:**
+    Navigate to `http://localhost:3000` to view the app.
+
+---
+
+## 🧪 How to Use (Mock Data)
+
+Since there is no backend connected yet (Week 2 Goal), the app uses `localStorage` to simulate a database.
+
+1.  **Default Login:**
+    *   **SA ID:** `8001015009087`
+    *   **Password:** `password123`
+2.  **Registration:** You can create a new account via the "Sign up" link. The data will persist in your browser's local storage even after refreshing.
+3.  **Reset:** To clear all data, run `localStorage.clear()` in your browser console.
+
+---
+
+## 📅 Roadmap
+
+| Phase | Focus | Status |
+| :--- | :--- | :--- |
+| **Week 1** | **Frontend Foundation, UI/UX, React Setup** | ✅ Completed |
+| Week 2 | Backend API (Node/Express) & Database (MongoDB) | 🚧 Planned |
+| Week 3 | Dockerization & CI/CD Pipelines | 📝 Planned |
+| Week 4 | Deployment & Final Polish | 📝 Planned |
+
+---
+
+## 🤝 Contributing
+
+1.  Fork the project.
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4.  Push to the branch (`git push origin feature/AmazingFeature`).
+5.  Open a Pull Request.
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
