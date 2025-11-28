@@ -2,8 +2,8 @@
 
 A modern, responsive digital banking frontend application built with React. This project represents **Week 1** of the development lifecycle, focusing on environment setup, component architecture, and high-fidelity UI/UX implementation.
 
-![OpenBank Dashboard Screenshot](https://capeitinitiative-my.sharepoint.com/:i:/g/personal/michelle_rammila_capaciti_org_za/IQCj7-bjWYQcQKv0P5RRAfUkAZhYx-dpOq2OBTTxVwvCWsM?e=CWQKdF)
-*(Replace this link with an actual screenshot of your dashboard)*
+https://capeitinitiative-my.sharepoint.com/:i:/g/personal/michelle_rammila_capaciti_org_za/IQCj7-bjWYQcQKv0P5RRAfUkAZhYx-dpOq2OBTTxVwvCWsM?e=CWQKdF
+
 
 ## 🚀 Features
 
