@@ -71,8 +71,8 @@ OpenBank/
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/openbank-ui.git
-    cd openbank-ui
+    git clone https://https://github.com/Stack-Symphony/openbank.git
+    cd openbank
     ```
 
 2.  **Install dependencies:**
