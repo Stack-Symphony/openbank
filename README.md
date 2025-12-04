@@ -1,5 +1,7 @@
 # OpenBank 🏦
 
+Deployment link: https://openbank-nine.vercel.app/
+
 A modern, responsive digital banking frontend application built with React. This project represents **Week 1** of the development lifecycle, focusing on environment setup, component architecture, and high-fidelity UI/UX implementation.
 
 https://capeitinitiative-my.sharepoint.com/:i:/g/personal/michelle_rammila_capaciti_org_za/IQCj7-bjWYQcQKv0P5RRAfUkAZhYx-dpOq2OBTTxVwvCWsM?e=CWQKdF
