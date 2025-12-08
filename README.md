@@ -91,7 +91,7 @@ OpenBank/
     ```
 
 4.  **Open in Browser:**
-    Navigate to `http://localhost:3001` to view the app.
+    Navigate to `http://localhost:3000` to view the app.
 
 ---
 
