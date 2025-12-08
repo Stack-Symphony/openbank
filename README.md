@@ -111,7 +111,7 @@ Since there is no backend connected yet (Week 2 Goal), the app uses `localStorag
 | Phase | Focus | Status |
 | :--- | :--- | :--- |
 | **Week 1** | **Frontend Foundation, UI/UX, React Setup** | ✅ Completed |
-| Week 2 | Backend API (Node/Express) & Database (MongoDB) | 🚧 Planned |
+| Week 2 | Backend API (Node/Express) & Database (MongoDB) | ✅ Completed |
 | Week 3 | Dockerization & CI/CD Pipelines | 📝 Planned |
 | Week 4 | Deployment & Final Polish | 📝 Planned |
 
