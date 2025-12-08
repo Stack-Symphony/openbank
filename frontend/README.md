@@ -1,8 +1,13 @@
-# OpenBank 🏦
+
+<img width="1600" height="723" alt="OpenBank" src="https://github.com/Stack-Symphony/openbank/blob/main/OpenBank.PNG" />
+
+## OpenBank
+
+Deployment link: https://openbank-nine.vercel.app/
 
 A modern, responsive digital banking frontend application built with React. This project represents **Week 1** of the development lifecycle, focusing on environment setup, component architecture, and high-fidelity UI/UX implementation.
 
-https://capeitinitiative-my.sharepoint.com/:i:/g/personal/michelle_rammila_capaciti_org_za/IQCj7-bjWYQcQKv0P5RRAfUkAZhYx-dpOq2OBTTxVwvCWsM?e=CWQKdF
+
 
 
 ## 🚀 Features
@@ -107,7 +112,7 @@ Since there is no backend connected yet (Week 2 Goal), the app uses `localStorag
 | Phase | Focus | Status |
 | :--- | :--- | :--- |
 | **Week 1** | **Frontend Foundation, UI/UX, React Setup** | ✅ Completed |
-| Week 2 | Backend API (Node/Express) & Database (MongoDB) | 🚧 Planned |
+| Week 2 | Backend API (Node/Express) & Database (MongoDB) |  🚧 Planned|
 | Week 3 | Dockerization & CI/CD Pipelines | 📝 Planned |
 | Week 4 | Deployment & Final Polish | 📝 Planned |
 

@@ -10,12 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD:frontend/package.json
     "axios": "^1.13.2",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.10.1"
+=======
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+>>>>>>> b6be0389ea8d61db8c7ebc70563090433e7b2f32:package.json
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
