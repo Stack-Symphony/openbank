@@ -1,5 +1,5 @@
 # OpenBank 🏦
-<img width="1600" height="723" alt="OpenBank" src="https://capeitinitiative-my.sharepoint.com/:i:/g/personal/michelle_rammila_capaciti_org_za/IQCj7-bjWYQcQKv0P5RRAfUkAZhYx-dpOq2OBTTxVwvCWsM?e=CWQKdF" />
+<img width="1600" height="723" alt="OpenBank" src="https://github.com/Stack-Symphony/openbank/blob/main/OpenBank.PNG" />
 
 
 Deployment link: https://openbank-nine.vercel.app/
