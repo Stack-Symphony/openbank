@@ -1,0 +1,49 @@
+
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: openbank-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    image: openbank/backend:local
+    container_name: openbank-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/openbank
+      JWT_SECRET: "change-me-in-prod"
+      JWT_EXPIRE: "30d"
+      FRONTEND_URL: "http://localhost:3000"
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    image: openbank/frontend:local
+    container_name: openbank-frontend
+    restart: unless-stopped
+    # Build-time env used by Vite (if your code reads it)
+    environment:
+      VITE_API_BASE_URL: "http://localhost:5000"
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo_data:

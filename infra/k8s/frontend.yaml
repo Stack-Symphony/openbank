@@ -1,0 +1,37 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openbank-frontend
+  namespace: openbank
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: openbank-frontend }
+  template:
+    metadata:
+      labels: { app: openbank-frontend }
+    spec:
+      containers:
+      - name: frontend
+        image: ghcr.io/REPLACE_OWNER/openbank-frontend:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openbank-frontend
+  namespace: openbank
+spec:
+  selector: { app: openbank-frontend }
+  ports:
+  - port: 80
