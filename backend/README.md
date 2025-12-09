@@ -1,0 +1,577 @@
+# OpenBank Backend API
+
+![OpenBank Backend](https://img.shields.io/badge/OpenBank-Backend-blue)
+![Node.js](https://img.shields.io/badge/Node.js-18+-green)
+![Express.js](https://img.shields.io/badge/Express.js-4.x-lightgrey)
+![MongoDB](https://img.shields.io/badge/MongoDB-6.0+-brightgreen)
+![JWT](https://img.shields.io/badge/JWT-Auth-orange)
+
+**Deployment URL:** `https://your-backend-api.com` *(Update with your deployed URL)*
+
+A robust, secure, and scalable banking backend API built with Node.js, Express, and MongoDB. This project represents **Week 2** of the development lifecycle, focusing on backend architecture, database design, API development, and secure authentication.
+
+## 🏦 Features
+
+### 🔐 **Authentication & Security**
+* **JWT-Based Authentication**: Secure token-based authentication with 30-day expiry
+* **Password Security**: bcrypt hashing with salt rounds for secure password storage
+* **Protected Routes**: Middleware for securing sensitive endpoints
+* **Input Validation**: Comprehensive validation for all user inputs
+* **CORS Protection**: Configured for secure frontend-backend communication
+
+### 💳 **Account Management**
+* **Multi-Account System**: Support for Savings, Checking, Business, and Investment accounts
+* **Real Balance Tracking**: ACID-compliant transaction processing
+* **User Profile Management**: Update contact details and security preferences
+* **Account Generation**: Automatic generation of unique account and card numbers
+
+### 💸 **Transaction Processing**
+* **Deposit Operations**: Add funds to any account type
+* **Withdrawal Operations**: Deduct funds with balance validation
+* **Internal Transfers**: Move funds between accounts with atomic transactions
+* **Transaction History**: Complete audit trail of all financial activities
+* **Balance Validation**: Prevents overdrafts and insufficient funds scenarios
+
+### 📊 **Data Management**
+* **MongoDB Integration**: NoSQL database with optimized schemas
+* **ACID Compliance**: MongoDB transactions for data consistency
+* **Data Validation**: Mongoose schema validation for data integrity
+* **Indexing**: Optimized indexes for faster query performance
+
+### 🛡️ **API Features**
+* **RESTful Architecture**: Clean, predictable API endpoints
+* **Error Handling**: Comprehensive error responses with proper HTTP codes
+* **Rate Limiting**: Protection against brute force attacks
+* **Request Logging**: Detailed logging for debugging and monitoring
+* **Health Checks**: API status monitoring endpoints
+
+## 🏗️ **Tech Stack**
+
+### **Core Technologies**
+* **Runtime**: [Node.js](https://nodejs.org/) (v18+)
+* **Framework**: [Express.js](https://expressjs.com/) (v4.x)
+* **Database**: [MongoDB](https://www.mongodb.com/) with [Mongoose ODM](https://mongoosejs.com/)
+* **Authentication**: [JSON Web Tokens](https://jwt.io/) + [bcryptjs](https://www.npmjs.com/package/bcryptjs)
+
+### **Development Tools**
+* **Environment Management**: [dotenv](https://www.npmjs.com/package/dotenv)
+* **HTTP Client**: [Postman](https://www.postman.com/) for API testing
+* **Process Manager**: [PM2](https://pm2.keymetrics.io/) for production
+* **Containerization**: [Docker](https://www.docker.com/) (optional)
+
+### **Security**
+* **CORS**: [cors](https://www.npmjs.com/package/cors) middleware
+* **Validation**: Built-in Mongoose validation
+* **Encryption**: bcrypt for password hashing
+* **Token Security**: JWT with configurable secrets and expiry
+
+## 📂 **Project Structure**
+
+```
+openbank-backend/
+├── config/                 # Configuration files
+│   └── db.js              # Database connection setup
+├── controllers/           # Business logic
+│   ├── authController.js  # Authentication logic
+│   └── transactionController.js # Transaction processing
+├── middleware/            # Express middleware
+│   └── authMiddleware.js  # JWT authentication
+├── models/               # MongoDB schemas
+│   ├── User.js           # User model with validation
+│   └── Transaction.js    # Transaction model
+├── routes/               # API routes
+│   ├── authRoutes.js     # Authentication endpoints
+│   ├── userRoutes.js     # User profile endpoints
+│   └── transactionRoutes.js # Transaction endpoints
+├── tests/                # Test files
+├── .env                  # Environment variables
+├── .env.example          # Environment template
+├── package.json         # Dependencies
+├── package-lock.json    # Lock file
+├── server.js           # Application entry point
+└── README.md           # This file
+```
+
+## 🚀 **Quick Start**
+
+### **Prerequisites**
+- Node.js (v18 or higher)
+- MongoDB (local installation or MongoDB Atlas account)
+- npm or yarn
+- Postman (for API testing)
+
+### **Installation**
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/yourusername/openbank-backend.git
+cd openbank-backend
+```
+
+2. **Install dependencies:**
+```bash
+npm install
+```
+
+3. **Configure environment variables:**
+```bash
+cp .env.example .env
+```
+Edit `.env` file with your configuration:
+```env
+NODE_ENV=development
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/openbank
+JWT_SECRET=your_super_secret_jwt_key_change_this
+JWT_EXPIRE=30d
+FRONTEND_URL=http://localhost:3000
+```
+
+4. **Start MongoDB:**
+```bash
+# For macOS
+brew services start mongodb-community
+
+# For Ubuntu/Debian
+sudo systemctl start mongodb
+
+# For Windows (Run as Administrator)
+net start MongoDB
+```
+
+5. **Start the development server:**
+```bash
+npm run dev
+```
+
+6. **Verify the server is running:**
+Visit `http://localhost:5000/api/health` in your browser or use curl:
+```bash
+curl http://localhost:5000/api/health
+```
+
+## 📡 **API Documentation**
+
+### **Base URL**
+```
+http://localhost:5000/api
+```
+
+### **Authentication Endpoints**
+
+#### **Register a New User**
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "saIdNumber": "8001015009087",
+  "email": "john.doe@example.com",
+  "phoneNumber": "0821234567",
+  "password": "password123"
+}
+```
+
+#### **User Login**
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "saIdNumber": "8001015009087",
+  "password": "password123"
+}
+```
+
+### **User Profile Endpoints**
+
+#### **Get User Profile** (Protected)
+```http
+GET /api/user/profile
+Authorization: Bearer <your_jwt_token>
+```
+
+#### **Update User Profile** (Protected)
+```http
+PUT /api/user/profile
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+
+{
+  "email": "new.email@example.com",
+  "phoneNumber": "0829876543",
+  "twoFactorEnabled": true
+}
+```
+
+### **Transaction Endpoints**
+
+#### **Get Transaction History** (Protected)
+```http
+GET /api/transactions
+Authorization: Bearer <your_jwt_token>
+```
+
+#### **Create Deposit** (Protected)
+```http
+POST /api/transactions
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+
+{
+  "type": "deposit",
+  "amount": "500.00",
+  "title": "Salary Deposit",
+  "accountType": "checking",
+  "description": "Monthly salary"
+}
+```
+
+#### **Create Withdrawal** (Protected)
+```http
+POST /api/transactions
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+
+{
+  "type": "withdrawal",
+  "amount": "250.00",
+  "title": "ATM Withdrawal",
+  "accountType": "checking",
+  "description": "Grocery shopping"
+}
+```
+
+#### **Create Transfer** (Protected)
+```http
+POST /api/transactions
+Authorization: Bearer <your_jwt_token>
+Content-Type: application/json
+
+{
+  "type": "transfer",
+  "amount": "1000.00",
+  "title": "Savings Transfer",
+  "accountType": "checking",
+  "toAccountType": "savings",
+  "description": "Monthly savings"
+}
+```
+
+### **Health Check**
+```http
+GET /api/health
+```
+
+## 🧪 **Testing the API**
+
+### **Using Postman**
+1. Import the provided `postman_collection.json` file
+2. Set up environment variables:
+   - `base_url`: `http://localhost:5000`
+3. Test endpoints in this order:
+   - `/api/health` - Verify server is running
+   - `/api/auth/register` - Create a test user
+   - `/api/auth/login` - Get JWT token
+   - Set token in environment variable
+   - Test protected endpoints
+
+### **Using cURL**
+```bash
+# Test health check
+curl http://localhost:5000/api/health
+
+# Register a user
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "Test",
+    "lastName": "User",
+    "saIdNumber": "9001015009088",
+    "email": "test@example.com",
+    "phoneNumber": "0821234567",
+    "password": "test123"
+  }'
+
+# Login and save token
+TOKEN=$(curl -s -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"saIdNumber": "9001015009088", "password": "test123"}' | \
+  grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+
+echo "Your token: $TOKEN"
+
+# Use token for protected endpoint
+curl -X GET http://localhost:5000/api/user/profile \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+## 🗄️ **Database Setup**
+
+### **Option 1: Local MongoDB**
+```bash
+# Install MongoDB (if not installed)
+# For macOS:
+brew tap mongodb/brew
+brew install mongodb-community
+brew services start mongodb-community
+
+# For Ubuntu/Debian:
+sudo apt update
+sudo apt install mongodb
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
+```
+
+### **Option 2: MongoDB Atlas (Cloud)**
+1. Sign up at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a free cluster
+3. Get connection string:
+   ```
+   mongodb+srv://username:password@cluster.mongodb.net/openbank?retryWrites=true&w=majority
+   ```
+4. Update `MONGO_URI` in `.env` file
+
+### **Option 3: Docker (Recommended for Development)**
+```bash
+# Start MongoDB with Docker
+docker run -d -p 27017:27017 --name openbank-mongo mongo:latest
+
+# Or use Docker Compose
+docker-compose up -d
+```
+
+### **Initialize Sample Data**
+```bash
+# Connect to MongoDB shell
+mongosh
+
+# Create database
+use openbank
+
+# Insert sample user
+db.users.insertOne({
+  "firstName": "John",
+  "lastName": "Doe",
+  "saIdNumber": "8001015009087",
+  "email": "john.doe@example.com",
+  "phoneNumber": "0821234567",
+  "password": "$2a$10$XOPbrlUPQdwdJUpSrIF6X.LbE14qsMmKGhM1A8W9iqaG3vv1iyVFK",
+  "accountNumber": "1234567890",
+  "cardNumber": "4532 7612 9088 3456",
+  "balances": {
+    "savings": 1700.00,
+    "checking": 3050.00,
+    "business": 10200.00,
+    "investment": 14000.00
+  },
+  "twoFactorEnabled": false,
+  "createdAt": new Date()
+});
+```
+
+## 🚢 **Deployment**
+
+### **Production Environment Variables**
+```env
+NODE_ENV=production
+PORT=5000
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/openbank?retryWrites=true&w=majority
+JWT_SECRET=your_strong_production_secret_here
+JWT_EXPIRE=30d
+FRONTEND_URL=https://your-frontend-app.com
+```
+
+### **Using PM2 (Recommended)**
+```bash
+# Install PM2 globally
+npm install -g pm2
+
+# Start application
+pm2 start server.js --name "openbank-api"
+
+# Save process list
+pm2 save
+
+# Setup startup script
+pm2 startup
+
+# Monitor application
+pm2 monit
+```
+
+### **Using Docker**
+```bash
+# Build Docker image
+docker build -t openbank-backend .
+
+# Run container
+docker run -d -p 5000:5000 --name openbank-api \
+  -e MONGO_URI=mongodb://host.docker.internal:27017/openbank \
+  openbank-backend
+```
+
+### **Deployment Platforms**
+- **Heroku**: `git push heroku main`
+- **AWS Elastic Beanstalk**: Use EB CLI
+- **DigitalOcean App Platform**: Connect GitHub repository
+- **Railway**: One-click deployment
+
+## 🧩 **Integration with Frontend**
+
+Update your frontend `App.tsx` to use the real API:
+
+```typescript
+// Update API base URL
+const API_BASE_URL = 'http://localhost:5000/api';
+
+// Example API call for login
+const login = async (saIdNumber: string, password: string) => {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ saIdNumber, password })
+  });
+  
+  const data = await response.json();
+  if (data.success) {
+    localStorage.setItem('token', data.data.token);
+  }
+  return data;
+};
+```
+
+## 📊 **Testing**
+
+### **Unit Tests**
+```bash
+# Run tests
+npm test
+
+# Run tests with coverage
+npm test -- --coverage
+
+# Watch mode
+npm test -- --watch
+```
+
+### **API Testing**
+```bash
+# Install test dependencies
+npm install --save-dev jest supertest mongodb-memory-server
+
+# Run API tests
+npm run test:api
+```
+
+### **Load Testing**
+```bash
+# Install artillery
+npm install -g artillery
+
+# Run load test
+artillery run load-test.yml
+```
+
+## 🔧 **Troubleshooting**
+
+### **Common Issues**
+
+1. **MongoDB Connection Failed**
+   ```
+   Error: connect ECONNREFUSED 127.0.0.1:27017
+   ```
+   **Solution**: Ensure MongoDB is running: `sudo systemctl status mongodb`
+
+2. **JWT Token Not Working**
+   ```
+   Error: Not authorized, token failed
+   ```
+   **Solution**: Check JWT_SECRET in .env matches and token hasn't expired
+
+3. **CORS Errors**
+   ```
+   Access-Control-Allow-Origin error
+   ```
+   **Solution**: Update FRONTEND_URL in .env file
+
+4. **Duplicate Key Error**
+   ```
+   E11000 duplicate key error
+   ```
+   **Solution**: The email or SA ID number already exists
+
+### **Debug Mode**
+```bash
+# Enable debug logging
+export DEBUG=express:*
+export NODE_ENV=development
+npm run dev
+```
+
+## 📈 **Performance Monitoring**
+
+### **Enable Monitoring**
+```bash
+# Install monitoring tools
+npm install --save express-status-monitor morgan
+
+# Access monitoring dashboard at:
+# http://localhost:5000/status
+```
+
+### **Logging**
+```bash
+# View logs
+pm2 logs openbank-api
+
+# Or with Docker
+docker logs -f openbank-api
+```
+
+## 🤝 **Contributing**
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
+
+### **Development Guidelines**
+- Follow JavaScript Standard Style
+- Write meaningful commit messages
+- Add tests for new features
+- Update documentation
+- Use meaningful variable names
+
+## 📄 **License**
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 **Acknowledgments**
+
+- [Express.js](https://expressjs.com/) team for the amazing framework
+- [MongoDB](https://www.mongodb.com/) for the database
+- [JWT](https://jwt.io/) for authentication
+- All contributors and testers
+
+## 📞 **Support**
+
+For support, email support@openbank.com or create an issue in the GitHub repository.
+
+---
+
+## 📅 **Development Roadmap**
+
+| Phase | Focus | Status |
+| :--- | :--- | :--- |
+| **Week 1** | **Frontend Foundation, UI/UX, React Setup** | ✅ Completed |
+| **Week 2** | **Backend API (Node/Express) & Database (MongoDB)** | ✅ Completed |
+| Week 3 | Dockerization & CI/CD Pipelines | 🚧 In Progress |
+| Week 4 | Deployment & Final Polish | 📝 Planned |
+
+---
+
+**Built with ❤️ by the OpenBank Development Team**
