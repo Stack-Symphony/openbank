@@ -1,7 +1,6 @@
----
 <img width="1600" height="723" alt="OpenBank" src="https://github.com/Stack-Symphony/openbank/blob/main/OpenBank.PNG" />
----
-## OpenBank 
+
+## OpenBank
 
 OpenBank is a modern, secure, end-to-end digital banking system built with React (frontend), Node.js/Express (backend), and MongoDB. It delivers a clean UI, realistic financial actions, user authentication, account management, and full transaction workflows. This version reflects the Week 1 (frontend) and Week 2 (backend) development milestones, with space to extend into Docker, CI/CD, and cloud deployment.
 
@@ -9,10 +8,7 @@ OpenBank is a modern, secure, end-to-end digital banking system built with React
 
 ## Frontend Overview
 
-**Live Deployment:**
-[https://openbank-nine.vercel.app/](https://openbank-nine.vercel.app/)
-**Repository:**
-[https://github.com/Stack-Symphony/openbank](https://github.com/Stack-Symphony/openbank)
+Deployment link: https://openbank-nine.vercel.app/
 
 A responsive banking interface built with React 19, focusing on authentication, dashboard interaction, and financial workflows.
 
@@ -124,19 +120,15 @@ FRONTEND_URL=http://localhost:3000
 
 ---
 
-## Roadmap
+#  **Development Roadmap**
 
-Week 1: Frontend system and UI buildout
-Week 2: Backend architecture, authentication, transaction logic
-Week 3: Docker containers, CI/CD workflows
-Week 4: Deployment, optimization, and production hardening
-
-(Future Docker instructions can be inserted here before deployment.)
+| Phase | Focus | Status |
+| :--- | :--- | :--- |
+| **Week 1** | **Frontend Foundation, UI/UX, React Setup** |  Completed |
+| **Week 2** | **Backend API (Node/Express) & Database (MongoDB)** |  Completed |
+| Week 3 | Dockerization & CI/CD Pipelines |  In Progress |
+| Week 4 | Deployment & Final Polish |  Planned |
 
 ---
 
-If you want, I can also generate
-• A combined fullstack architecture diagram
-• A polished Docker Compose file linking both services
-• A clean API docs site format
-• A portfolio-friendly project summary page
+(Future Docker instructions can be inserted here before deployment.)
