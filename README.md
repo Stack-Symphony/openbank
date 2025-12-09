@@ -32,8 +32,6 @@ Core components include Authentication pages, Dashboard, Transaction pages, Prof
 
 ## Backend API Overview
 
-**Repository:**
-[https://github.com/yourusername/openbank-backend](https://github.com/yourusername/openbank-backend)
 **API Base URL:** (update after deployment)
 `https://your-backend-api.com/api`
 
