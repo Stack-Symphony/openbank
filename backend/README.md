@@ -260,36 +260,6 @@ GET /api/health
    - Set token in environment variable
    - Test protected endpoints
 
-### **Using cURL**
-```bash
-# Test health check
-curl http://localhost:5000/api/health
-
-# Register a user
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "firstName": "Test",
-    "lastName": "User",
-    "saIdNumber": "9001015009088",
-    "email": "test@example.com",
-    "phoneNumber": "0821234567",
-    "password": "test123"
-  }'
-
-# Login and save token
-TOKEN=$(curl -s -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"saIdNumber": "9001015009088", "password": "test123"}' | \
-  grep -o '"token":"[^"]*"' | cut -d'"' -f4)
-
-echo "Your token: $TOKEN"
-
-# Use token for protected endpoint
-curl -X GET http://localhost:5000/api/user/profile \
-  -H "Authorization: Bearer $TOKEN"
-```
-
 ## 🗄️ **Database Setup**
 
 ### **Option 1: Local MongoDB**
@@ -429,16 +399,6 @@ npm install --save-dev jest supertest mongodb-memory-server
 # Run API tests
 npm run test:api
 ```
-
-### **Load Testing**
-```bash
-# Install artillery
-npm install -g artillery
-
-# Run load test
-artillery run load-test.yml
-```
-
 ## 🔧 **Troubleshooting**
 
 ### **Common Issues**
