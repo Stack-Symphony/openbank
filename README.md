@@ -32,7 +32,7 @@ Core components include Authentication pages, Dashboard, Transaction pages, Prof
 
 ## Backend API Overview
 
-**API Base URL:** (update after deployment)
+**API Base URL:** 
 `https://your-backend-api.com/api`
 
 A secure and scalable REST API built using Node.js, Express, MongoDB, and JWT authentication.
