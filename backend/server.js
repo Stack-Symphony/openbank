@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/authRoutes'); // Imported here
-// Assuming these are also imported or will be:
+const authRoutes = require('./routes/authRoutes'); 
 const userRoutes = require('./routes/userRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 
@@ -17,12 +16,12 @@ const app = express();
 connectDB();
 
 // ----------------------------------------------------
-// 🎯 CRITICAL FIX: Global CORS Middleware (Single Configuration)
+// CRITICAL FIX: Global CORS Middleware (Single Configuration)
 // ----------------------------------------------------
 const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:3000';
 
 const corsOptions = {
-    // 1. Specify the exact origin of your frontend
+    // 1. Specify the exact origin of  frontend
     origin: allowedOrigin,
     
     // 2. Allow credentials (crucial for cookies/sessions, even if you use Bearer tokens)
@@ -42,7 +41,7 @@ const corsOptions = {
 app.use(cors(corsOptions)); 
 // ----------------------------------------------------
 
-// Middleware (Moved to after CORS setup, which should be first)
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -82,7 +81,7 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`✅ Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  console.log(`🔗 Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`🌐 CORS configured for: ${allowedOrigin}`);
+  console.log(` Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(` Health Check: http://localhost:${PORT}/api/health`);
+  console.log(` CORS configured for: ${allowedOrigin}`);
 });
