@@ -18,10 +18,10 @@ const login = async () => {
     console.log(data);
 
     if (data.success) {
-      console.log('✅ Login successful!');
+      console.log(' Login successful!');
       console.log('Token:', data.data.token);
     } else {
-      console.log('❌ Login failed:', data.message);
+      console.log(' Login failed:', data.message);
     }
 
   } catch (error) {
