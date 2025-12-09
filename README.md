@@ -1,6 +1,6 @@
 ---
 <img width="1600" height="723" alt="OpenBank" src="https://github.com/Stack-Symphony/openbank/blob/main/OpenBank.PNG" />
-# OpenBank — Fullstack Digital Banking Platform
+## OpenBank — Fullstack Digital Banking Platform
 
 OpenBank is a modern, secure, end-to-end digital banking system built with React (frontend), Node.js/Express (backend), and MongoDB. It delivers a clean UI, realistic financial actions, user authentication, account management, and full transaction workflows. This version reflects the Week 1 (frontend) and Week 2 (backend) development milestones, with space to extend into Docker, CI/CD, and cloud deployment.
 
