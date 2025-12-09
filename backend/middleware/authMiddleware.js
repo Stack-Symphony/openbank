@@ -4,7 +4,7 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
 
-  // 1️⃣ Check if authorization header exists
+  // 1 Check if authorization header exists
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -12,23 +12,23 @@ const protect = async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   }
 
-  // 2️⃣ If no token, STOP here
+  // 2 If no token, STOP here
   if (!token) {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 
   try {
-    // 3️⃣ Verify token
+    // 3 Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 4️⃣ Attach user to request
+    // 4 Attach user to request
     req.user = await User.findById(decoded.id).select('-password');
 
     if (!req.user) {
       return res.status(401).json({ message: 'User no longer exists' });
     }
 
-    // 5️⃣ Continue to protected route
+    // 5 Continue to protected route
     next();
 
   } catch (error) {
