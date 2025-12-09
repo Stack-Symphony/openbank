@@ -19,24 +19,6 @@ A robust, secure, and scalable banking backend API built with Node.js, Express, 
 * **Input Validation**: Comprehensive validation for all user inputs
 * **CORS Protection**: Configured for secure frontend-backend communication
 
-### 💳 **Account Management**
-* **Multi-Account System**: Support for Savings, Checking, Business, and Investment accounts
-* **Real Balance Tracking**: ACID-compliant transaction processing
-* **User Profile Management**: Update contact details and security preferences
-* **Account Generation**: Automatic generation of unique account and card numbers
-
-### 💸 **Transaction Processing**
-* **Deposit Operations**: Add funds to any account type
-* **Withdrawal Operations**: Deduct funds with balance validation
-* **Internal Transfers**: Move funds between accounts with atomic transactions
-* **Transaction History**: Complete audit trail of all financial activities
-* **Balance Validation**: Prevents overdrafts and insufficient funds scenarios
-
-### 📊 **Data Management**
-* **MongoDB Integration**: NoSQL database with optimized schemas
-* **ACID Compliance**: MongoDB transactions for data consistency
-* **Data Validation**: Mongoose schema validation for data integrity
-* **Indexing**: Optimized indexes for faster query performance
 
 ### 🛡️ **API Features**
 * **RESTful Architecture**: Clean, predictable API endpoints
@@ -401,24 +383,6 @@ pm2 startup
 # Monitor application
 pm2 monit
 ```
-
-### **Using Docker**
-```bash
-# Build Docker image
-docker build -t openbank-backend .
-
-# Run container
-docker run -d -p 5000:5000 --name openbank-api \
-  -e MONGO_URI=mongodb://host.docker.internal:27017/openbank \
-  openbank-backend
-```
-
-### **Deployment Platforms**
-- **Heroku**: `git push heroku main`
-- **AWS Elastic Beanstalk**: Use EB CLI
-- **DigitalOcean App Platform**: Connect GitHub repository
-- **Railway**: One-click deployment
-
 ## 🧩 **Integration with Frontend**
 
 Update your frontend `App.tsx` to use the real API:
@@ -557,21 +521,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [JWT](https://jwt.io/) for authentication
 - All contributors and testers
 
-## 📞 **Support**
-
-For support, email support@openbank.com or create an issue in the GitHub repository.
-
 ---
-
-## 📅 **Development Roadmap**
-
-| Phase | Focus | Status |
-| :--- | :--- | :--- |
-| **Week 1** | **Frontend Foundation, UI/UX, React Setup** | ✅ Completed |
-| **Week 2** | **Backend API (Node/Express) & Database (MongoDB)** | ✅ Completed |
-| Week 3 | Dockerization & CI/CD Pipelines | 🚧 In Progress |
-| Week 4 | Deployment & Final Polish | 📝 Planned |
-
----
-
-**Built with ❤️ by the OpenBank Development Team**
