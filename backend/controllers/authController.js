@@ -144,7 +144,7 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     
-    // NOTE: This assumes req.user is populated by your protect middleware
+    // NOTE: This assumes req.user is populated by  protect middleware
     const user = await User.findById(req.user.id).select('-password'); 
     
     res.status(200).json({
