@@ -6,8 +6,6 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-6.0+-brightgreen)
 ![JWT](https://img.shields.io/badge/JWT-Auth-orange)
 
-**Deployment URL:** `https://your-backend-api.com` *(Update with your deployed URL)*
-
 A robust, secure, and scalable banking backend API built with Node.js, Express, and MongoDB. This project represents **Week 2** of the development lifecycle, focusing on backend architecture, database design, API development, and secure authentication.
 
 ## 🏦 Features
