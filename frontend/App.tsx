@@ -10,6 +10,7 @@ import { AccountDetailsPage } from './components/AccountDetailsPage';
 import { TransactionHistoryPage } from './components/TransactionHistoryPage';
 import { ToddlerIcon } from './components/CustomIcons';
 import apiService from './utils/api';
+import Login from './components/Login';
 
 interface Transaction {
   id: string;
@@ -41,6 +42,7 @@ interface UserData {
 
 export default function App() {
   const [view, setView] = useState('auth');
+  const [authMode, setAuthMode] = useState('login');
   const [theme, setTheme] = useState('dark');
   const [selectedAccount, setSelectedAccount] = useState('');
   const [isLoading, setIsLoading] = useState(false);
