@@ -1,60 +1,49 @@
-const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const User = require('../models/User');
 
-// Generate JWT Token
+// Helper to generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '30d',
+    expiresIn: '30d',
   });
 };
 
-// @desc    Register user
+// @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
-exports.register = async (req, res) => {
+const registerUser = async (req, res) => {
+  const { firstName, lastName, saIdNumber, email, phoneNumber, password } = req.body;
+
   try {
-    
-    const { firstName, lastName, saIdNumber, email, phoneNumber, password } = req.body;
-
-    // Validation
+    // 1. Validation
     if (!firstName || !lastName || !saIdNumber || !email || !password) {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Please include all required fields' 
-      });
+      res.status(400);
+      throw new Error('Please include all fields');
     }
 
-    // Validate SA ID Number (13 digits)
-    if (!/^\d{13}$/.test(saIdNumber)) {
-      return res.status(400).json({
-        success: false,
-        message: 'South African ID number must be exactly 13 digits'
-      });
-    }
-
-    // Check if user exists
-    const userExists = await User.findOne({
-      $or: [{ saIdNumber }, { email }]
+    // 2. Check if user exists (ID or Email)
+    const userExists = await User.findOne({ 
+        $or: [{ saIdNumber }, { email }] 
     });
 
     if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'User already exists with this ID or Email'
-      });
+      res.status(400);
+      throw new Error('User already exists with this ID or Email');
     }
 
-    // Hash password
+    // 3. Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Generate Bank Details
+    // 4. Generate Bank Details
+    // Random 10-digit Account Number
     const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+    // Random 16-digit Card Number (spaced)
     const cardNumRaw = Math.floor(1000000000000000 + Math.random() * 9000000000000000).toString();
     const cardNumber = cardNumRaw.match(/.{1,4}/g).join(' ');
 
-    // Create User
+    // 5. Create User
     const user = await User.create({
       firstName,
       lastName,
@@ -69,93 +58,50 @@ exports.register = async (req, res) => {
 
     if (user) {
       res.status(201).json({
-        success: true,
-        data: {
-          _id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          accountNumber: user.accountNumber,
-          cardNumber: user.cardNumber,
-          token: generateToken(user._id)
-        },
-        message: 'Registration successful'
+        _id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        token: generateToken(user._id)
       });
     } else {
-      res.status(400).json({
-        success: false,
-        message: 'Invalid user data'
-      });
+      res.status(400);
+      throw new Error('Invalid user data');
     }
   } catch (error) {
-    console.error('Registration Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    res.status(statusCode).json({ message: error.message });
   }
 };
 
-// @desc    Authenticate user & get token
+// @desc    Authenticate a user
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res) => {
-  try {
-    
-    const { saIdNumber, password } = req.body;
+const loginUser = async (req, res) => {
+  const { saIdNumber, password } = req.body;
 
-    // Check for user
+  try {
+    // 1. Check for user by ID
     const user = await User.findOne({ saIdNumber });
 
-    // Validate password
+    // 2. Validate password
     if (user && (await bcrypt.compare(password, user.password))) {
       res.json({
-        success: true,
-        data: {
-          _id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          accountNumber: user.accountNumber,
-          cardNumber: user.cardNumber,
-          balances: user.balances,
-          token: generateToken(user._id) // Token is sent in the body
-        },
-        message: 'Login successful'
+        _id: user.id,
+        name: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        token: generateToken(user._id)
       });
     } else {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid credentials'
-      });
+      res.status(400);
+      throw new Error('Invalid credentials');
     }
   } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    res.status(statusCode).json({ message: error.message });
   }
 };
 
-// @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
-exports.getMe = async (req, res) => {
-  try {
-    
-    // NOTE: This assumes req.user is populated by  protect middleware
-    const user = await User.findById(req.user.id).select('-password'); 
-    
-    res.status(200).json({
-      success: true,
-      data: user
-    });
-  } catch (error) {
-    console.error('Get User Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error'
-    });
-  }
+module.exports = {
+  registerUser,
+  loginUser
 };
