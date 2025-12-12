@@ -1,5 +1,5 @@
-
-version: "3.9"
+# Remove version line or update to latest syntax
+# version: "3.9"  # Remove or comment this line
 
 services:
   mongo:
@@ -37,7 +37,6 @@ services:
     image: openbank/frontend:local
     container_name: openbank-frontend
     restart: unless-stopped
-    # Build-time env used by Vite (if your code reads it)
     environment:
       VITE_API_BASE_URL: "http://localhost:5000"
     depends_on:
