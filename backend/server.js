@@ -1,3 +1,5 @@
+
+
 // server.js - FULL UPDATED CODE
 const express = require('express');
 const mongoose = require('mongoose');
@@ -60,7 +62,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
+//app.options('*', cors(corsOptions));
+
 
 // Body parser middleware
 app.use(express.json());
