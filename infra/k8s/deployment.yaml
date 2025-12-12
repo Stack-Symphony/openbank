@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openbank-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openbank-frontend
+  template:
+    metadata:
+      labels:
+        app: openbank-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: yourusername/openbank-frontend:latest
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openbank-frontend-service
+spec:
+  selector:
+    app: openbank-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: LoadBalancer

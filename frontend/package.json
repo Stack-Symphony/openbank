@@ -23,11 +23,15 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@types/react": "^18.2.0",
+<<<<<<< HEAD
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^5.0.0",
     "react-scripts": "^0.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
+=======
+    "@types/react-dom": "^18.2.0"
+>>>>>>> 181862c0d8044c1c55032ffb378039cf3e1d1ddd
   },
   "development": [
     "last 1 chrome version",

@@ -1,0 +1,25 @@
+﻿# Environment files
+.env
+.env.local
+.env.staging
+.env.production
+.env.development
+backend/.env
+backend/node_modules/
+frontend/node_modules/
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
