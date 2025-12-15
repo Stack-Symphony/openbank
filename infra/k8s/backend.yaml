@@ -1,71 +1,57 @@
-
+# k8s/openbank-backend.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: openbank-backend
-  namespace: openbank
+  labels:
+    app: openbank-backend
 spec:
   replicas: 2
   selector:
-    matchLabels: { app: openbank-backend }
+    matchLabels:
+      app: openbank-backend
   template:
     metadata:
-      labels: { app: openbank-backend }
+      labels:
+        app: openbank-backend
     spec:
       containers:
       - name: backend
-        image: ghcr.io/REPLACE_OWNER/openbank-backend:latest
-        imagePullPolicy: Always
+        image: openbank/backend:latest  # Use your actual image name
+        ports:
+        - containerPort: 8080  # Adjust port based on your backend
         env:
         - name: NODE_ENV
           value: "production"
-        - name: PORT
-          value: "5000"
-        - name: MONGODB_URI
-          value: "mongodb://mongo.openbank.svc.cluster.local:27017/openbank"
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: openbank-secrets
-              key: JWT_SECRET
-        - name: JWT_EXPIRE
-          valueFrom:
-            secretKeyRef:
-              name: openbank-secrets
-              key: JWT_EXPIRE
-        - name: FRONTEND_URL
-          valueFrom:
-            secretKeyRef:
-              name: openbank-secrets
-              key: FRONTEND_URL
-        ports:
-        - containerPort: 5000
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 5000
-          initialDelaySeconds: 20
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 5000
-          initialDelaySeconds: 10
-          periodSeconds: 15
         resources:
           requests:
-            cpu: "100m"
             memory: "256Mi"
+            cpu: "250m"
           limits:
-            cpu: "500m"
             memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health  # Adjust health check path
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: openbank-backend
-  namespace: openbank
+  name: openbank-backend-service
 spec:
-  selector: { app: openbank-backend }
+  selector:
+    app: openbank-backend
   ports:
-  - port: 5000
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

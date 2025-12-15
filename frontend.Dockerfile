@@ -1,21 +1,22 @@
+﻿# Build stage
+FROM node:20-alpine AS builder
 
-# ---------- Builder ----------
-FROM node:20-alpine AS build
 WORKDIR /app
-# Install deps
-COPY frontend/package.json frontend/package-lock.json* ./frontend/
-RUN cd frontend && npm ci
-# Copy source
-COPY frontend ./frontend
-# Build static site (Vite/React)
-RUN cd frontend && npm run build
 
-# ---------- Runtime ----------
-FROM nginx:1.27-alpine
-# Copy built assets to Nginx html
-COPY --from=build /app/frontend/dist /usr/share/nginx/html
-# Default Nginx serves port 80
+# Copy package files from frontend directory
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci --legacy-peer-deps
+
+# Copy all frontend files
+COPY frontend/ .
+
+# Build the app
+RUN npm run build
+
+# Production stage
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:80/ || exit 1
 CMD ["nginx", "-g", "daemon off;"]

@@ -7,9 +7,6 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "react-scripts start",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
@@ -29,11 +26,9 @@
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   },
-  "browserslist": {
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+  "development": [
+    "last 1 chrome version",
+    "last 1 firefox version",
+    "last 1 safari version"
+  ]
 }
