@@ -1,0 +1,73 @@
+# artillery/load-test.yml
+config:
+  target: "http://localhost:5000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 20
+      name: "Sustained load"
+    - duration: 30
+      arrivalRate: 50
+      name: "Peak load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  plugins:
+    ensure: {}
+    apdex: {}
+  apdex:
+    threshold: 1000
+
+scenarios:
+  - name: "User Registration Flow"
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            firstName: "Test"
+            lastName: "User"
+            saIdNumber: "{{ $timestamp }}"
+            email: "test{{ $timestamp }}@example.com"
+            phoneNumber: "082{{ $randomNumber(1000000, 9999999) }}"
+            password: "password123"
+          capture:
+            json: "$.data.token"
+            as: "token"
+      
+      - think: 2
+      
+      - post:
+          url: "/api/auth/login"
+          json:
+            saIdNumber: "{{ $timestamp }}"
+            password: "password123"
+      
+      - think: 1
+      
+      - get:
+          url: "/api/user/profile"
+          headers:
+            Authorization: "Bearer {{ token }}"
+      
+      - think: 1
+      
+      - post:
+          url: "/api/transactions"
+          headers:
+            Authorization: "Bearer {{ token }}"
+          json:
+            type: "deposit"
+            amount: 100
+            accountType: "checking"
+            description: "Load test deposit"
+
+  - name: "Transaction History View"
+    flow:
+      - get:
+          url: "/api/transactions"
+          headers:
+            Authorization: "Bearer {{ $processEnvironment.AUTH_TOKEN }}"
+      
+      - think: 3
