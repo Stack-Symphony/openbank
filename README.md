@@ -10,7 +10,7 @@ OpenBank is a modern, secure, end-to-end digital banking system built with React
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ### **Frontend** (Week 1 Focus)
 - **Framework**: React 19
@@ -29,7 +29,7 @@ OpenBank is a modern, secure, end-to-end digital banking system built with React
 
 ---
 
-## 🚀 Quick Setup Guide
+##  Quick Setup Guide
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18 or higher)
@@ -78,7 +78,7 @@ npm start
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ### Frontend (`/openbank`)
 ```
@@ -127,7 +127,7 @@ openbank-backend/
 
 ---
 
-## 🔐 Environment Configuration
+##  Environment Configuration
 
 ### Backend `.env` File
 ```env
@@ -154,7 +154,7 @@ console.log(crypto.randomBytes(32).toString('hex'));
 
 ---
 
-## 🎯 Frontend Features
+##  Frontend Features
 
 ### Authentication & Security
 - **Secure Login/Registration**: Form validation including South African ID number (13-digit check)
@@ -191,7 +191,7 @@ console.log(crypto.randomBytes(32).toString('hex'));
 
 ---
 
-## 🏦 Backend API Features
+##  Backend API Features
 
 ### Authentication & Security
 - **JWT-Based Authentication**: Secure token-based authentication with 30-day expiry
@@ -327,7 +327,7 @@ GET /api/health
 
 ---
 
-## 🗄️ Database Setup
+##  Database Setup
 
 ### Option 1: Local MongoDB
 ```bash
@@ -395,7 +395,7 @@ db.users.insertOne({
 
 ---
 
-## 🧪 Testing
+##  Testing
 
 ### Frontend Testing
 ```bash
@@ -448,7 +448,7 @@ npm run test:api
 
 ---
 
-## 🚢 Deployment
+##  Deployment
 
 ### Production Environment Variables
 ```env
@@ -501,7 +501,7 @@ const login = async (saIdNumber: string, password: string) => {
 
 ---
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -553,7 +553,7 @@ npm run dev
 
 ---
 
-## 📊 Performance Monitoring
+##  Performance Monitoring
 
 ### Enable Monitoring
 ```bash
@@ -575,7 +575,7 @@ docker logs -f openbank-api
 
 ---
 
-## 🧩 Development Guidelines
+##  Development Guidelines
 
 ### Git Workflow
 ```bash
@@ -601,12 +601,12 @@ git push origin feature/amazing-feature
 
 ---
 
-## 📄 License
+##  License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 - Express.js team for the amazing framework
 - MongoDB for the database
 - JWT for authentication
@@ -615,7 +615,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 🔗 Useful Links
+##  Useful Links
 - **Frontend Repository**: https://github.com/Stack-Symphony/openbank
 - **Backend Repository**: https://github.com/yourusername/openbank-backend
 - **Live Demo**: Coming soon 
@@ -623,7 +623,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 📞 Support
+##  Support
 For issues or questions:
 1. Check the Troubleshooting section
 2. Review API documentation
