@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: yourusername/openbank-frontend:latest
+          image: openbank-frontend:latest   # ← change this to match your actual built image name
+          imagePullPolicy: Never                         # ← ADDED THIS LINE
           ports:
             - containerPort: 80
           env:
