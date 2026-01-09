@@ -1,0 +1,57 @@
+# k8s/openbank-backend.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openbank-backend
+  labels:
+    app: openbank-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openbank-backend
+  template:
+    metadata:
+      labels:
+        app: openbank-backend
+    spec:
+      containers:
+      - name: backend
+        image: openbank/backend:latest  # Use your actual image name
+        ports:
+        - containerPort: 8080  # Adjust port based on your backend
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health  # Adjust health check path
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openbank-backend-service
+spec:
+  selector:
+    app: openbank-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP

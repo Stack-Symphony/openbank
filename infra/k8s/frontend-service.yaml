@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: openbank-frontend
+  namespace: openbank
+  labels:
+    app: openbank
+    component: frontend
+spec:
+  selector:
+    app: openbank
+    component: frontend
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  type: LoadBalancer
+  # For Minikube, use NodePort instead:
+  # type: NodePort
