@@ -1,11 +1,11 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 
 // Helper to generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: "30d",
   });
 };
 
@@ -19,7 +19,7 @@ const registerUser = async (req, res) => {
     // 1. Validation
     if (!firstName || !lastName || !saIdNumber || !email || !password) {
       res.status(400);
-      throw new Error('Please include all fields');
+      throw new Error("Please include all fields");
     }
 
     // 2. Check if user exists (ID or Email)
@@ -29,7 +29,7 @@ const registerUser = async (req, res) => {
 
     if (userExists) {
       res.status(400);
-      throw new Error('User already exists with this ID or Email');
+      throw new Error("User already exists with this ID or Email");
     }
 
     // 3. Hash password
@@ -41,7 +41,7 @@ const registerUser = async (req, res) => {
     const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
     // Random 16-digit Card Number (spaced)
     const cardNumRaw = Math.floor(1000000000000000 + Math.random() * 9000000000000000).toString();
-    const cardNumber = cardNumRaw.match(/.{1,4}/g).join(' ');
+    const cardNumber = cardNumRaw.match(/.{1,4}/g).join(" ");
 
     // 5. Create User
     const user = await User.create({
@@ -65,7 +65,7 @@ const registerUser = async (req, res) => {
       });
     } else {
       res.status(400);
-      throw new Error('Invalid user data');
+      throw new Error("Invalid user data");
     }
   } catch (error) {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
@@ -93,7 +93,7 @@ const loginUser = async (req, res) => {
       });
     } else {
       res.status(400);
-      throw new Error('Invalid credentials');
+      throw new Error("Invalid credentials");
     }
   } catch (error) {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

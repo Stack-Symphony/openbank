@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
@@ -12,9 +12,9 @@ const connectDB = async () => {
     console.log(` Database: ${conn.connection.name}`);
     
     // Create indexes for better performance
-    await mongoose.connection.db.collection('users').createIndex({ email: 1 }, { unique: true });
-    await mongoose.connection.db.collection('users').createIndex({ saIdNumber: 1 }, { unique: true });
-    await mongoose.connection.db.collection('transactions').createIndex({ user: 1, date: -1 });
+    await mongoose.connection.db.collection("users").createIndex({ email: 1 }, { unique: true });
+    await mongoose.connection.db.collection("users").createIndex({ saIdNumber: 1 }, { unique: true });
+    await mongoose.connection.db.collection("transactions").createIndex({ user: 1, date: -1 });
     
   } catch (error) {
     console.error(` MongoDB Connection Error: ${error.message}`);

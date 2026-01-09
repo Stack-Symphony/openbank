@@ -1,23 +1,23 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const User = require('../models/User');
-const { protect } = require('../middleware/authMiddleware');
+const User = require("../models/User");
+const { protect } = require("../middleware/authMiddleware");
 
 // @route   GET /api/user/profile
 // @desc    Get current user profile, balances, and card info
 // @access  Private
-router.get('/profile', protect, async (req, res) => {
+router.get("/profile", protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
     res.status(200).json({
       success: true,
       data: user
     });
   } catch (error) {
-    console.error('Get Profile Error:', error);
+    console.error("Get Profile Error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error"
     });
   }
 });
@@ -25,7 +25,7 @@ router.get('/profile', protect, async (req, res) => {
 // @route   PUT /api/user/profile
 // @desc    Update user contact details
 // @access  Private
-router.put('/profile', protect, async (req, res) => {
+router.put("/profile", protect, async (req, res) => {
   const { email, phoneNumber, twoFactorEnabled } = req.body;
 
   try {
@@ -51,14 +51,14 @@ router.put('/profile', protect, async (req, res) => {
     } else {
       res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found"
       });
     }
   } catch (error) {
-    console.error('Update Profile Error:', error);
+    console.error("Update Profile Error:", error);
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: "Server Error"
     });
   }
 });

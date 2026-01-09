@@ -1,22 +1,22 @@
 // routes/authRoutes.js - FULL UPDATED CODE
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { protect } = require('../middleware/authMiddleware');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const { protect } = require("../middleware/authMiddleware");
 
 // Helper function to generate JWT
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
+        expiresIn: "30d"
     });
 };
 
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
-router.post('/register', async (req, res) => {
+router.post("/register", async (req, res) => {
     try {
         const { firstName, lastName, saIdNumber, email, phoneNumber, password } = req.body;
 
@@ -24,7 +24,7 @@ router.post('/register', async (req, res) => {
         if (!firstName || !lastName || !saIdNumber || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Please include all required fields'
+                message: "Please include all required fields"
             });
         }
 
@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
         if (!/^\d{13}$/.test(saIdNumber)) {
             return res.status(400).json({
                 success: false,
-                message: 'South African ID number must be exactly 13 digits'
+                message: "South African ID number must be exactly 13 digits"
             });
         }
 
@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
         if (userExists) {
             return res.status(400).json({
                 success: false,
-                message: 'User already exists with this ID or Email'
+                message: "User already exists with this ID or Email"
             });
         }
 
@@ -55,7 +55,7 @@ router.post('/register', async (req, res) => {
         // Generate Bank Details
         const accountNumber = Math.floor(1000000000 + Math.random() * 9000000000).toString();
         const cardNumRaw = Math.floor(1000000000000000 + Math.random() * 9000000000000000).toString();
-        const cardNumber = cardNumRaw.match(/.{1,4}/g).join(' ');
+        const cardNumber = cardNumRaw.match(/.{1,4}/g).join(" ");
 
         // Create User
         const user = await User.create({
@@ -83,15 +83,15 @@ router.post('/register', async (req, res) => {
                 cardNumber: user.cardNumber,
                 token: token
             },
-            message: 'Registration successful'
+            message: "Registration successful"
         });
 
     } catch (error) {
-        console.error('Registration Error:', error);
+        console.error("Registration Error:", error);
         res.status(500).json({
             success: false,
-            message: 'Server Error',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            message: "Server Error",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
         });
     }
 });
@@ -99,7 +99,7 @@ router.post('/register', async (req, res) => {
 // @route   POST /api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
     try {
         const { saIdNumber, password } = req.body;
 
@@ -107,7 +107,7 @@ router.post('/login', async (req, res) => {
         if (!saIdNumber || !password) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide ID number and password'
+                message: "Please provide ID number and password"
             });
         }
 
@@ -117,7 +117,7 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: "Invalid credentials"
             });
         }
 
@@ -127,7 +127,7 @@ router.post('/login', async (req, res) => {
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: "Invalid credentials"
             });
         }
 
@@ -143,18 +143,18 @@ router.post('/login', async (req, res) => {
                 accountNumber: user.accountNumber,
                 cardNumber: user.cardNumber,
                 balances: user.balances,
-                phoneNumber: user.phoneNumber || '',
+                phoneNumber: user.phoneNumber || "",
                 token: token
             },
-            message: 'Login successful'
+            message: "Login successful"
         });
 
     } catch (error) {
-        console.error('Login Error:', error);
+        console.error("Login Error:", error);
         res.status(500).json({
             success: false,
-            message: 'Server Error',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            message: "Server Error",
+            error: process.env.NODE_ENV === "development" ? error.message : undefined
         });
     }
 });
@@ -162,14 +162,14 @@ router.post('/login', async (req, res) => {
 // @route   GET /api/auth/me
 // @desc    Get current user
 // @access  Private
-router.get('/me', protect, async (req, res) => {
+router.get("/me", protect, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select("-password");
 
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: 'User not found'
+                message: "User not found"
             });
         }
 
@@ -178,10 +178,10 @@ router.get('/me', protect, async (req, res) => {
             data: user
         });
     } catch (error) {
-        console.error('Get User Error:', error);
+        console.error("Get User Error:", error);
         res.status(500).json({
             success: false,
-            message: 'Server Error'
+            message: "Server Error"
         });
     }
 });
@@ -189,10 +189,10 @@ router.get('/me', protect, async (req, res) => {
 // @route   GET /api/auth/test
 // @desc    Test auth route
 // @access  Public
-router.get('/test', (req, res) => {
+router.get("/test", (req, res) => {
     res.json({
         success: true,
-        message: 'Auth routes are working!'
+        message: "Auth routes are working!"
     });
 });
 

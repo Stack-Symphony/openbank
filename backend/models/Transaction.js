@@ -1,14 +1,14 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const TransactionSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true
   },
   type: {
     type: String,
-    enum: ['deposit', 'withdrawal', 'transfer'],
+    enum: ["deposit", "withdrawal", "transfer"],
     required: true
   },
   title: {
@@ -43,4 +43,4 @@ const TransactionSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Transaction', TransactionSchema);
+module.exports = mongoose.model("Transaction", TransactionSchema);

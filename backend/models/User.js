@@ -1,27 +1,27 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: [true, 'Please add a first name']
+    required: [true, "Please add a first name"]
   },
   lastName: {
     type: String,
-    required: [true, 'Please add a last name']
+    required: [true, "Please add a last name"]
   },
   saIdNumber: {
     type: String,
-    required: [true, 'Please add a South African ID number'],
+    required: [true, "Please add a South African ID number"],
     unique: true,
     length: 13
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
+    required: [true, "Please add an email"],
     unique: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please add a valid email'
+      "Please add a valid email"
     ]
   },
   phoneNumber: {
@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please add a password']
+    required: [true, "Please add a password"]
   },
   // Generated Banking Details
   accountNumber: {
@@ -58,4 +58,4 @@ const UserSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model("User", UserSchema);

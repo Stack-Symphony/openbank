@@ -1,16 +1,16 @@
-const User = require('../models/User');
+const User = require("../models/User");
 
 // @desc    Get user data and balances
 // @route   GET /api/user/profile
 // @access  Private
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
     if (user) {
         res.status(200).json(user);
     } else {
         res.status(404);
-        throw new Error('User not found');
+        throw new Error("User not found");
     }
   } catch (error) {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
@@ -45,7 +45,7 @@ const updateUserProfile = async (req, res) => {
       });
     } else {
       res.status(404);
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
   } catch (error) {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
