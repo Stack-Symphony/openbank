@@ -44,11 +44,11 @@ jobs:
 
       # Build backend Docker image
       - name: Build backend Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest ./backend
+        run: docker build  --load -t ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest ./backend
 
       # Build frontend Docker image
       - name: Build frontend Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest ./frontend
+        run: docker build  --load -t ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest ./frontend
 
   deploy:
     needs: build-test
