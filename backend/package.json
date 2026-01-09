@@ -15,7 +15,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+<<<<<<< HEAD
     "express-prom-bundle": "^8.0.0",
+=======
+>>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd
     "express-rate-limit": "^6.11.2",
     "express-validator": "^6.15.0",
     "helmet": "^7.2.0",
@@ -24,14 +27,26 @@
     "validator": "^13.15.23"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.2",
     "node-fetch": "^2.7.0",
     "nodemailer": "^7.0.11",
     "nodemon": "^3.1.11",
+=======
+    "nodemon": "^3.1.11",
+    "jspdf": "^3.0.4",
+    "jspdf-autotable": "^5.0.2",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.11",
+>>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd
     "winston": "^3.18.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd

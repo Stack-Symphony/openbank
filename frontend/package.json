@@ -11,7 +11,11 @@
   },
   "dependencies": {
     "axios": "^1.13.2",
+<<<<<<< HEAD
     "jspdf": "^4.0.0",
+=======
+    "jspdf": "^3.0.4",
+>>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd
     "jspdf-autotable": "^5.0.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -31,4 +35,8 @@
     "last 1 firefox version",
     "last 1 safari version"
   ]
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd
