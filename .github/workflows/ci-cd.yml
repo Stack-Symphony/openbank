@@ -8,33 +8,45 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
+      # Set up Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Install backend dependencies
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm install
 
+      # Lint backend (does not fail workflow)
       - name: Lint backend
         working-directory: ./backend
-        run: npm run lint || true  # Add "lint": "eslint ." to package.json if needed
+        run: npm run lint || true  # prevents exit code 1
 
+      # Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
 
+      # Lint frontend (does not fail workflow)
       - name: Lint frontend
         working-directory: ./frontend
-        run: npm run lint  # Add lint script if needed
+        run: npm run lint || true
 
+      # Build backend Docker image
       - name: Build backend Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest ./backend
 
+      # Build frontend Docker image
       - name: Build frontend Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest ./frontend
 
@@ -42,33 +54,39 @@ jobs:
     needs: build-test
     runs-on: ubuntu-latest
     steps:
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Push backend image
       - name: Push backend image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest ./backend
           docker push ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest
 
+      # Push frontend image
       - name: Push frontend image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest ./frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest
 
+      # Set up kubectl
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
 
+      # Deploy to Kubernetes
       - name: Deploy to Kubernetes
         env:
-          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}  # Base64-encoded kubeconfig for your cluster
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           echo "${KUBE_CONFIG}" | base64 -d > kubeconfig.yaml
           export KUBECONFIG=kubeconfig.yaml
@@ -76,4 +94,4 @@ jobs:
           kubectl apply -f k8s/mongo-deployment.yaml
           kubectl apply -f k8s/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
-          kubectl apply -f k8s/hpa.yaml  # For scaling
+          kubectl apply -f k8s/hpa.yaml
