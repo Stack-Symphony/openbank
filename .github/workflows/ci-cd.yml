@@ -90,8 +90,6 @@ jobs:
           version: 'latest'
 
       - name: Deploy to Kubernetes
-        env:
-          KUBECONFIG: ${{ secrets.KUBE_CONFIG }}
         run: |
           mkdir -p $HOME/.kube
           echo "$KUBECONFIG" | base64 -d > $HOME/.kube/config
