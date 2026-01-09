@@ -7,25 +7,29 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix"
   },
   "dependencies": {
     "axios": "^1.13.2",
-<<<<<<< HEAD
     "jspdf": "^4.0.0",
-=======
-    "jspdf": "^3.0.4",
->>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd
     "jspdf-autotable": "^5.0.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.10.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@types/node": "^22.14.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
     "react-scripts": "^0.0.0",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
@@ -35,8 +39,4 @@
     "last 1 firefox version",
     "last 1 safari version"
   ]
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> e08d38945bbc394edb0fb90e0bdbd9ff1f775ffd

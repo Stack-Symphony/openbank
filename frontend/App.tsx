@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { RegisterForm } from './components/RegisterForm';
-import { BrandingPanel } from './components/BrandingPanel';
-import { Dashboard } from './components/Dashboard';
-import { WithdrawPage } from './components/WithdrawPage';
-import { DepositPage } from './components/DepositPage';
-import { ProfilePage } from './components/ProfilePage';
-import { TransferPage } from './components/TransferPage';
-import { AccountDetailsPage } from './components/AccountDetailsPage';
-import { TransactionHistoryPage } from './components/TransactionHistoryPage';
-import { ToddlerIcon } from './components/CustomIcons';
-import apiService from './utils/api';
-import Login from './components/Login';
+import React, { useState, useEffect } from "react";
+import { RegisterForm } from "./components/RegisterForm";
+import { BrandingPanel } from "./components/BrandingPanel";
+import { Dashboard } from "./components/Dashboard";
+import { WithdrawPage } from "./components/WithdrawPage";
+import { DepositPage } from "./components/DepositPage";
+import { ProfilePage } from "./components/ProfilePage";
+import { TransferPage } from "./components/TransferPage";
+import { AccountDetailsPage } from "./components/AccountDetailsPage";
+import { TransactionHistoryPage } from "./components/TransactionHistoryPage";
+import { ToddlerIcon } from "./components/CustomIcons";
+import apiService from "./utils/api";
+import Login from "./components/Login";
 
 interface Transaction {
   id: string;
@@ -41,31 +41,31 @@ interface UserData {
 }
 
 export default function App() {
-  const [view, setView] = useState('auth');
-  const [authMode, setAuthMode] = useState('login');
-  const [theme, setTheme] = useState('dark');
-  const [selectedAccount, setSelectedAccount] = useState('');
+  const [view, setView] = useState("auth");
+  const [authMode, setAuthMode] = useState("login");
+  const [theme, setTheme] = useState("dark");
+  const [selectedAccount, setSelectedAccount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   // Toggle Theme Function
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    if (newTheme === 'light') {
-      document.body.classList.add('light-theme');
+    if (newTheme === "light") {
+      document.body.classList.add("light-theme");
     } else {
-      document.body.classList.remove('light-theme');
+      document.body.classList.remove("light-theme");
     }
   };
   
   // User Session State
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [accountNumber, setAccountNumber] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [userId, setUserId] = useState('');
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [userId, setUserId] = useState("");
 
   // Notification Preferences
   const [notifications, setNotifications] = useState({
@@ -96,13 +96,13 @@ export default function App() {
   // Add this useEffect for debugging
   useEffect(() => {
     const testConnection = async () => {
-      console.log('Testing backend connection...');
+      console.log("Testing backend connection...");
       const result = await apiService.testConnection();
-      console.log('Connection test result:', result);
+      console.log("Connection test result:", result);
       
       // Also check if we have a token
-      const token = localStorage.getItem('token');
-      console.log('Current token in localStorage:', token ? 'Exists' : 'None');
+      const token = localStorage.getItem("token");
+      console.log("Current token in localStorage:", token ? "Exists" : "None");
     };
     
     testConnection();
@@ -110,7 +110,7 @@ export default function App() {
 
   // Check for existing token on mount
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       // Verify token and load user data
       loadUserData();
@@ -128,7 +128,7 @@ export default function App() {
         const user = profileResponse.data;
         setUserName(`${user.firstName} ${user.lastName}`);
         setEmail(user.email);
-        setPhoneNumber(user.phoneNumber || '');
+        setPhoneNumber(user.phoneNumber || "");
         setAccountNumber(user.accountNumber);
         setCardNumber(user.cardNumber);
         setAccounts(user.balances);
@@ -144,13 +144,13 @@ export default function App() {
           _id: tx._id,
           type: tx.type,
           title: tx.title,
-          date: new Date(tx.date).toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
+          date: new Date(tx.date).toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: true
           }),
           amount: tx.displayAmount || `R${tx.amount.toFixed(2)}`,
@@ -162,11 +162,11 @@ export default function App() {
         setTransactions(formattedTransactions);
       }
 
-      setView('dashboard');
+      setView("dashboard");
     } catch (err: any) {
-      console.error('Failed to load user data:', err);
+      console.error("Failed to load user data:", err);
       // If token is invalid, logout
-      if (err.message === 'Unauthorized' || err.message === 'Invalid token') {
+      if (err.message === "Unauthorized" || err.message === "Invalid token") {
         handleLogout();
       }
     } finally {
@@ -180,7 +180,7 @@ export default function App() {
     setError(null);
 
     try {
-      if (mode === 'login') {
+      if (mode === "login") {
         const result = await apiService.login({
           saIdNumber: formData.saIdNumber,
           password: formData.password
@@ -207,13 +207,13 @@ export default function App() {
               _id: tx._id,
               type: tx.type,
               title: tx.title,
-              date: new Date(tx.date).toLocaleString('en-US', {
-                month: 'numeric',
-                day: 'numeric',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
+              date: new Date(tx.date).toLocaleString("en-US", {
+                month: "numeric",
+                day: "numeric",
+                year: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
                 hour12: true
               }),
               amount: tx.displayAmount || `R${tx.amount.toFixed(2)}`,
@@ -225,13 +225,13 @@ export default function App() {
             setTransactions(formattedTransactions);
           }
           
-          setView('dashboard');
+          setView("dashboard");
           return { success: true };
         } else {
-          return { success: false, message: result.message || 'Login failed' };
+          return { success: false, message: result.message || "Login failed" };
         }
         
-      } else if (mode === 'register') {
+      } else if (mode === "register") {
         const result = await apiService.register({
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -249,45 +249,45 @@ export default function App() {
           setAccounts({ savings: 0, checking: 0, business: 0, investment: 0 });
           setTransactions([]);
           setUserId(result.data._id);
-          setView('dashboard');
+          setView("dashboard");
           
           // Show success notification
-          setSmsNotification('Welcome to OpenBank! Your account has been created successfully.');
+          setSmsNotification("Welcome to OpenBank! Your account has been created successfully.");
           setTimeout(() => setSmsNotification(null), 5000);
           
           return { success: true };
         } else {
-          return { success: false, message: result.message || 'Registration failed' };
+          return { success: false, message: result.message || "Registration failed" };
         }
       }
     } catch (err: any) {
-      console.error('Auth error:', err);
+      console.error("Auth error:", err);
       return { 
         success: false, 
-        message: err.message || 'An error occurred during authentication' 
+        message: err.message || "An error occurred during authentication" 
       };
     } finally {
       setIsLoading(false);
     }
     
-    return { success: false, message: 'Unknown error occurred' };
+    return { success: false, message: "Unknown error occurred" };
   };
 
   const handleLogout = () => {
     apiService.logout();
-    setUserName('');
-    setEmail('');
-    setPhoneNumber('');
-    setAccountNumber('');
-    setCardNumber('');
+    setUserName("");
+    setEmail("");
+    setPhoneNumber("");
+    setAccountNumber("");
+    setCardNumber("");
     setAccounts({ savings: 0, checking: 0, business: 0, investment: 0 });
     setTransactions([]);
-    setUserId('');
-    setView('auth');
-    if (theme === 'light') toggleTheme(); // Reset theme on logout
+    setUserId("");
+    setView("auth");
+    if (theme === "light") toggleTheme(); // Reset theme on logout
     
     // Show logout notification
-    setSmsNotification('You have been logged out successfully.');
+    setSmsNotification("You have been logged out successfully.");
     setTimeout(() => setSmsNotification(null), 3000);
   };
 
@@ -305,15 +305,15 @@ export default function App() {
         setPhoneNumber(phone);
         
         // Show success notification
-        setSmsNotification('Profile updated successfully.');
+        setSmsNotification("Profile updated successfully.");
         setTimeout(() => setSmsNotification(null), 3000);
         
         return true;
       }
       return false;
     } catch (err: any) {
-      console.error('Update profile error:', err);
-      setError(err.message || 'Failed to update profile');
+      console.error("Update profile error:", err);
+      setError(err.message || "Failed to update profile");
       return false;
     } finally {
       setIsLoading(false);
@@ -338,7 +338,7 @@ export default function App() {
       setSmsNotification(msg);
       setTimeout(() => setSmsNotification(null), 5000);
     } else {
-      const msg = `Security Alert: 2FA has been disabled.`;
+      const msg = "Security Alert: 2FA has been disabled.";
       setSmsNotification(msg);
       setTimeout(() => setSmsNotification(null), 5000);
     }
@@ -365,13 +365,13 @@ export default function App() {
           _id: result.data.transaction._id,
           type,
           title: result.data.transaction.title,
-          date: new Date().toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
+          date: new Date().toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: true
           }),
           amount: result.data.transaction.displayAmount,
@@ -386,7 +386,7 @@ export default function App() {
         // Trigger SMS Notification if enabled
         if (notifications.sms) {
           const formattedAmount = result.data.transaction.displayAmount || `R${parseFloat(amountStr).toFixed(2)}`;
-          const msg = `Transaction Alert: ${type === 'withdrawal' ? 'Withdrawal' : 'Deposit'} of ${formattedAmount} successful on your ${accountType} account.`;
+          const msg = `Transaction Alert: ${type === "withdrawal" ? "Withdrawal" : "Deposit"} of ${formattedAmount} successful on your ${accountType} account.`;
           setSmsNotification(msg);
           // Clear after 5 seconds
           setTimeout(() => setSmsNotification(null), 5000);
@@ -396,8 +396,8 @@ export default function App() {
       }
       return false;
     } catch (err: any) {
-      console.error('Transaction error:', err);
-      setError(err.message || 'Transaction failed');
+      console.error("Transaction error:", err);
+      setError(err.message || "Transaction failed");
       return false;
     } finally {
       setIsLoading(false);
@@ -408,7 +408,7 @@ export default function App() {
     setIsLoading(true);
     try {
       const result = await apiService.createTransaction({
-        type: 'transfer',
+        type: "transfer",
         amount: amount.toString(),
         title: description || `Transfer from ${fromAccount} to ${toAccount}`,
         accountType: fromAccount,
@@ -426,15 +426,15 @@ export default function App() {
         const newTx = {
           id: result.data.transaction._id || Date.now().toString(),
           _id: result.data.transaction._id,
-          type: 'transfer',
+          type: "transfer",
           title: result.data.transaction.title,
-          date: new Date().toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
+          date: new Date().toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: true
           }),
           amount: result.data.transaction.displayAmount,
@@ -446,17 +446,17 @@ export default function App() {
         
         // Also create a received transaction for the destination account
         const newTxIn = {
-          id: (result.data.transaction._id || Date.now().toString()) + '_in',
-          _id: (result.data.transaction._id || '') + '_in',
-          type: 'transfer',
+          id: (result.data.transaction._id || Date.now().toString()) + "_in",
+          _id: (result.data.transaction._id || "") + "_in",
+          type: "transfer",
           title: description || `Received from ${capitalize(fromAccount)}`,
-          date: new Date().toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
+          date: new Date().toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: true
           }),
           amount: result.data.transaction.displayAmount,
@@ -480,8 +480,8 @@ export default function App() {
       }
       return false;
     } catch (err: any) {
-      console.error('Transfer error:', err);
-      setError(err.message || 'Transfer failed');
+      console.error("Transfer error:", err);
+      setError(err.message || "Transfer failed");
       return false;
     } finally {
       setIsLoading(false);
@@ -490,7 +490,7 @@ export default function App() {
 
   const handleSelectAccount = (accountType: string) => {
     setSelectedAccount(accountType);
-    setView('account-details');
+    setView("account-details");
   };
 
   // Refresh transactions when returning to dashboard
@@ -503,13 +503,13 @@ export default function App() {
           _id: tx._id,
           type: tx.type,
           title: tx.title,
-          date: new Date(tx.date).toLocaleString('en-US', {
-            month: 'numeric',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
+          date: new Date(tx.date).toLocaleString("en-US", {
+            month: "numeric",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
             hour12: true
           }),
           amount: tx.displayAmount || `R${tx.amount.toFixed(2)}`,
@@ -521,7 +521,7 @@ export default function App() {
         setTransactions(formattedTransactions);
       }
     } catch (err) {
-      console.error('Failed to refresh transactions:', err);
+      console.error("Failed to refresh transactions:", err);
     }
   };
 
@@ -534,7 +534,7 @@ export default function App() {
         setAccounts(user.balances);
       }
     } catch (err) {
-      console.error('Failed to refresh user data:', err);
+      console.error("Failed to refresh user data:", err);
     }
   };
 
@@ -543,25 +543,25 @@ export default function App() {
       {/* Loading Overlay */}
       {isLoading && (
         <div style={{
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          backgroundColor: "rgba(0,0,0,0.7)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           zIndex: 1000
         }}>
           <div style={{
-            backgroundColor: 'var(--color-card-bg)',
-            padding: '2rem',
-            borderRadius: '12px',
-            textAlign: 'center'
+            backgroundColor: "var(--color-card-bg)",
+            padding: "2rem",
+            borderRadius: "12px",
+            textAlign: "center"
           }}>
             <ToddlerIcon size={48} />
-            <p style={{ marginTop: '1rem' }}>Processing...</p>
+            <p style={{ marginTop: "1rem" }}>Processing...</p>
           </div>
         </div>
       )}
@@ -569,28 +569,28 @@ export default function App() {
       {/* Error Message */}
       {error && (
         <div style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: 'rgba(239, 68, 68, 0.9)',
-          color: 'white',
-          padding: '1rem 2rem',
-          borderRadius: '8px',
+          position: "fixed",
+          top: "20px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "rgba(239, 68, 68, 0.9)",
+          color: "white",
+          padding: "1rem 2rem",
+          borderRadius: "8px",
           zIndex: 1001,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem"
         }}>
           <span>{error}</span>
           <button 
             onClick={() => setError(null)}
             style={{
-              background: 'none',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              fontSize: '1.2rem'
+              background: "none",
+              border: "none",
+              color: "white",
+              cursor: "pointer",
+              fontSize: "1.2rem"
             }}
           >
             ×
@@ -599,7 +599,7 @@ export default function App() {
       )}
 
       {/* Main Views */}
-      {view === 'auth' ? (
+      {view === "auth" ? (
         <div className="auth-card">
           <BrandingPanel />
           <RegisterForm onAuth={handleAuth} />
@@ -612,17 +612,17 @@ export default function App() {
                 <span>Messages • Now</span>
               </div>
               <div className="sms-body">
-                <span className="sms-number">Sent to {phoneNumber || 'Your Number'}</span>
+                <span className="sms-number">Sent to {phoneNumber || "Your Number"}</span>
                 <strong>OpenBank</strong><br/>
                 {smsNotification}
               </div>
             </div>
           )}
 
-          {view === 'withdraw' && (
+          {view === "withdraw" && (
             <WithdrawPage 
               onBack={() => {
-                setView('dashboard');
+                setView("dashboard");
                 refreshUserData();
                 refreshTransactions();
               }} 
@@ -630,10 +630,10 @@ export default function App() {
             />
           )}
 
-          {view === 'deposit' && (
+          {view === "deposit" && (
             <DepositPage 
               onBack={() => {
-                setView('dashboard');
+                setView("dashboard");
                 refreshUserData();
                 refreshTransactions();
               }} 
@@ -641,10 +641,10 @@ export default function App() {
             />
           )}
 
-          {view === 'transfer' && (
+          {view === "transfer" && (
             <TransferPage 
               onBack={() => {
-                setView('dashboard');
+                setView("dashboard");
                 refreshUserData();
                 refreshTransactions();
               }} 
@@ -654,18 +654,18 @@ export default function App() {
             />
           )}
 
-          {view === 'transactions' && (
+          {view === "transactions" && (
             <TransactionHistoryPage
-              onBack={() => setView('dashboard')}
+              onBack={() => setView("dashboard")}
               transactions={transactions}
               userName={userName}
               accountNumber={accountNumber}
             />
           )}
 
-          {view === 'account-details' && (
+          {view === "account-details" && (
             <AccountDetailsPage 
-              accountType={selectedAccount.charAt(0).toUpperCase() + selectedAccount.slice(1) + ' Account'}
+              accountType={selectedAccount.charAt(0).toUpperCase() + selectedAccount.slice(1) + " Account"}
               balance={accounts[selectedAccount] || 0}
               transactions={transactions.filter(t => 
                 // Flexible matching for account names
@@ -676,16 +676,16 @@ export default function App() {
               userName={userName}
               accountNumber={accountNumber}
               onBack={() => {
-                setSelectedAccount('');
-                setView('dashboard');
+                setSelectedAccount("");
+                setView("dashboard");
               }}
-              onTransfer={() => setView('transfer')}
+              onTransfer={() => setView("transfer")}
             />
           )}
 
-          {view === 'profile' && (
+          {view === "profile" && (
              <ProfilePage 
-                onBack={() => setView('dashboard')}
+                onBack={() => setView("dashboard")}
                 userName={userName}
                 email={email}
                 phoneNumber={phoneNumber}
@@ -698,7 +698,7 @@ export default function App() {
              />
           )}
 
-          {view === 'dashboard' && (
+          {view === "dashboard" && (
             <Dashboard 
               userName={userName}
               totalBalance={totalBalance}
@@ -706,14 +706,14 @@ export default function App() {
               accountNumber={accountNumber}
               cardNumber={cardNumber}
               onLogout={handleLogout} 
-              onWithdraw={() => setView('withdraw')}
-              onDeposit={() => setView('deposit')}
+              onWithdraw={() => setView("withdraw")}
+              onDeposit={() => setView("deposit")}
               onTransfer={() => {
-                setSelectedAccount(''); // No pre-selection for generic transfer
-                setView('transfer');
+                setSelectedAccount(""); // No pre-selection for generic transfer
+                setView("transfer");
               }}
-              onHistory={() => setView('transactions')}
-              onProfile={() => setView('profile')}
+              onHistory={() => setView("transactions")}
+              onProfile={() => setView("profile")}
               onSelectAccount={handleSelectAccount}
             />
           )}

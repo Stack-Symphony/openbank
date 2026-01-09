@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { EyeIcon, EyeOffIcon } from './CustomIcons';
+import React, { useState } from "react";
+import { EyeIcon, EyeOffIcon } from "./CustomIcons";
 
 export const RegisterForm = ({ onAuth }) => {
-  const [authMode, setAuthMode] = useState('login');
+  const [authMode, setAuthMode] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string | undefined }>({});
   
   const [formData, setFormData] = useState({
-    firstName: 'Fletcher',
-    lastName: '',
-    saIdNumber: '',
-    email: '',
-    phoneNumber: '',
-    password: '',
+    firstName: "Fletcher",
+    lastName: "",
+    saIdNumber: "",
+    email: "",
+    phoneNumber: "",
+    password: "",
     agreed: true
   });
 
@@ -21,14 +21,14 @@ export const RegisterForm = ({ onAuth }) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value
     }));
 
     // Clear specific error when user types
-    if (name === 'saIdNumber') {
+    if (name === "saIdNumber") {
       setErrors(prev => ({ ...prev, saIdNumber: undefined }));
     }
-    if (name === 'password') {
+    if (name === "password") {
       setErrors(prev => ({ ...prev, password: undefined }));
     }
     // Clear global auth error on input change
@@ -46,16 +46,16 @@ export const RegisterForm = ({ onAuth }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (authMode === 'forgot') {
+    if (authMode === "forgot") {
       // Simulate sending reset email
       setResetSent(true);
     } else {
       // Validate ID Number for Login and Register
-      if (authMode === 'login' || authMode === 'register') {
+      if (authMode === "login" || authMode === "register") {
         const id = formData.saIdNumber;
         // Regex checks for exactly 13 digits
         if (!/^\d{13}$/.test(id)) {
-          setErrors({ saIdNumber: 'ID number must be exactly 13 digits' });
+          setErrors({ saIdNumber: "ID number must be exactly 13 digits" });
           return;
         }
       }
@@ -71,26 +71,26 @@ export const RegisterForm = ({ onAuth }) => {
   };
 
   // Render Success Message for Forgot Password
-  if (resetSent && authMode === 'forgot') {
+  if (resetSent && authMode === "forgot") {
     return (
       <div className="form-panel">
         <div className="header-text">
           <h2>Check your email</h2>
           <p className="sub-text">
-            We've sent password reset instructions to <strong style={{ color: 'white' }}>{formData.email || 'your email address'}</strong>.
+            We've sent password reset instructions to <strong style={{ color: "white" }}>{formData.email || "your email address"}</strong>.
           </p>
         </div>
         
         <button 
           className="btn-primary" 
-          onClick={(e) => toggleMode(e, 'login')}
+          onClick={(e) => toggleMode(e, "login")}
         >
           Return to Log in
         </button>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+        <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
           <p className="sub-text">
-            Did not receive the email?{' '}
+            Did not receive the email?{" "}
             <a href="#" onClick={() => setResetSent(false)}>Resend</a>
           </p>
         </div>
@@ -101,7 +101,7 @@ export const RegisterForm = ({ onAuth }) => {
   return (
     <div className="form-panel">
       <div className="header-text">
-        {authMode === 'forgot' ? (
+        {authMode === "forgot" ? (
           <>
             <h2>Reset password</h2>
             <p className="sub-text">
@@ -110,11 +110,11 @@ export const RegisterForm = ({ onAuth }) => {
           </>
         ) : (
           <>
-            <h2>{authMode === 'login' ? 'Welcome' : 'Create an account'}</h2>
+            <h2>{authMode === "login" ? "Welcome" : "Create an account"}</h2>
             <p className="sub-text">
-              {authMode === 'login' ? "Don't have an account?" : "Already have an account?"}{' '}
-              <a href="#" onClick={(e) => toggleMode(e, authMode === 'login' ? 'register' : 'login')}>
-                {authMode === 'login' ? 'Sign up' : 'Log in'}
+              {authMode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+              <a href="#" onClick={(e) => toggleMode(e, authMode === "login" ? "register" : "login")}>
+                {authMode === "login" ? "Sign up" : "Log in"}
               </a>
             </p>
           </>
@@ -126,19 +126,19 @@ export const RegisterForm = ({ onAuth }) => {
         {/* Auth Error Message */}
         {errors.auth && (
           <div style={{ 
-            backgroundColor: 'rgba(239, 68, 68, 0.1)', 
-            border: '1px solid rgba(239, 68, 68, 0.2)', 
-            color: '#ef4444', 
-            padding: '0.75rem', 
-            borderRadius: '0.5rem', 
-            fontSize: '0.875rem',
-            textAlign: 'center'
+            backgroundColor: "rgba(239, 68, 68, 0.1)", 
+            border: "1px solid rgba(239, 68, 68, 0.2)", 
+            color: "#ef4444", 
+            padding: "0.75rem", 
+            borderRadius: "0.5rem", 
+            fontSize: "0.875rem",
+            textAlign: "center"
           }}>
             {errors.auth}
           </div>
         )}
 
-        {authMode === 'register' && (
+        {authMode === "register" && (
           /* Name Row */
             <div className="row">
               <div className="col">
@@ -166,7 +166,7 @@ export const RegisterForm = ({ onAuth }) => {
         )}
 
         {/* SA ID Number - Shown for Login and Register */}
-        {(authMode === 'login' || authMode === 'register') && (
+        {(authMode === "login" || authMode === "register") && (
           <div>
             <input
               type="text"
@@ -176,10 +176,10 @@ export const RegisterForm = ({ onAuth }) => {
               placeholder="South African ID number"
               maxLength={13}
               required
-              style={errors.saIdNumber ? { borderColor: '#ef4444' } : {}}
+              style={errors.saIdNumber ? { borderColor: "#ef4444" } : {}}
             />
             {errors.saIdNumber && (
-              <span style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.5rem', display: 'block' }}>
+              <span style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem", display: "block" }}>
                 {errors.saIdNumber}
               </span>
             )}
@@ -187,7 +187,7 @@ export const RegisterForm = ({ onAuth }) => {
         )}
 
         {/* Email and Phone Section */}
-        {authMode === 'register' ? (
+        {authMode === "register" ? (
           <div className="row">
             <div className="col">
               <input
@@ -202,16 +202,16 @@ export const RegisterForm = ({ onAuth }) => {
             <div className="col">
               <div className="input-wrapper">
                  <span style={{ 
-                     position: 'absolute', 
-                     left: '1rem', 
-                     top: '50%', 
-                     transform: 'translateY(-50%)', 
-                     color: 'var(--color-text-muted)',
-                     fontSize: '0.875rem',
+                     position: "absolute", 
+                     left: "1rem", 
+                     top: "50%", 
+                     transform: "translateY(-50%)", 
+                     color: "var(--color-text-muted)",
+                     fontSize: "0.875rem",
                      fontWeight: 500,
-                     borderRight: '1px solid var(--color-border)',
-                     paddingRight: '0.75rem',
-                     lineHeight: '1'
+                     borderRight: "1px solid var(--color-border)",
+                     paddingRight: "0.75rem",
+                     lineHeight: "1"
                  }}>
                    +27
                  </span>
@@ -220,17 +220,17 @@ export const RegisterForm = ({ onAuth }) => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                    handleChange({ target: { name: 'phoneNumber', value: val, type: 'tel' } });
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    handleChange({ target: { name: "phoneNumber", value: val, type: "tel" } });
                   }}
                   placeholder="Mobile number"
-                  style={{ paddingLeft: '4.5rem' }}
+                  style={{ paddingLeft: "4.5rem" }}
                   required
                 />
               </div>
             </div>
           </div>
-        ) : authMode === 'forgot' ? (
+        ) : authMode === "forgot" ? (
           <div>
             <input
               type="email"
@@ -244,7 +244,7 @@ export const RegisterForm = ({ onAuth }) => {
         ) : null}
 
         {/* Password - Shown for Login and Register */}
-        {authMode !== 'forgot' && (
+        {authMode !== "forgot" && (
           <div>
             <div className="input-wrapper">
               <input
@@ -254,7 +254,7 @@ export const RegisterForm = ({ onAuth }) => {
                 onChange={handleChange}
                 placeholder="Enter your password"
                 required
-                style={errors.password ? { borderColor: '#ef4444' } : {}}
+                style={errors.password ? { borderColor: "#ef4444" } : {}}
               />
               <button
                 type="button"
@@ -265,7 +265,7 @@ export const RegisterForm = ({ onAuth }) => {
               </button>
             </div>
             {errors.password && (
-              <span style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.5rem', display: 'block' }}>
+              <span style={{ color: "#ef4444", fontSize: "0.75rem", marginTop: "0.5rem", display: "block" }}>
                 {errors.password}
               </span>
             )}
@@ -273,19 +273,19 @@ export const RegisterForm = ({ onAuth }) => {
         )}
 
         {/* Forgot Password Link - Only for Login */}
-        {authMode === 'login' && (
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-0.5rem' }}>
+        {authMode === "login" && (
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "-0.5rem" }}>
             <a 
               href="#" 
-              onClick={(e) => toggleMode(e, 'forgot')}
-              style={{ fontSize: '0.85rem', textDecoration: 'none' }}
+              onClick={(e) => toggleMode(e, "forgot")}
+              style={{ fontSize: "0.85rem", textDecoration: "none" }}
             >
               Forgot Password?
             </a>
           </div>
         )}
 
-        {authMode === 'register' && (
+        {authMode === "register" && (
           /* Checkbox */
           <div className="checkbox-group">
             <div className="checkbox-wrapper">
@@ -318,16 +318,16 @@ export const RegisterForm = ({ onAuth }) => {
 
         {/* Submit Button */}
         <button type="submit" className="btn-primary">
-          {authMode === 'login' ? 'Log in' : authMode === 'register' ? 'Create account' : 'Send reset link'}
+          {authMode === "login" ? "Log in" : authMode === "register" ? "Create account" : "Send reset link"}
         </button>
 
         {/* Back to Login for Forgot Password */}
-        {authMode === 'forgot' && (
-          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+        {authMode === "forgot" && (
+          <div style={{ textAlign: "center", marginTop: "1rem" }}>
             <a 
               href="#" 
-              onClick={(e) => toggleMode(e, 'login')}
-              style={{ fontSize: '0.875rem' }}
+              onClick={(e) => toggleMode(e, "login")}
+              style={{ fontSize: "0.875rem" }}
             >
               Back to Log in
             </a>

@@ -1,5 +1,5 @@
 // components/Login.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 //import apiService from '../utils/api';
 interface LoginFormData {
   saIdNumber: string;
@@ -7,7 +7,7 @@ interface LoginFormData {
 }
 
 interface LoginProps {
-  onAuth: (type: 'login', formData: LoginFormData) => Promise<{
+  onAuth: (type: "login", formData: LoginFormData) => Promise<{
     success: boolean;
     message?: string;
   }>;
@@ -16,11 +16,11 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ onAuth, isLoading = false }) => {
   const [formData, setFormData] = useState<LoginFormData>({
-    saIdNumber: '',
-    password: ''
+    saIdNumber: "",
+    password: ""
   });
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -31,24 +31,24 @@ const Login: React.FC<LoginProps> = ({ onAuth, isLoading = false }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.saIdNumber.trim() || !formData.password.trim()) {
-      setError('Please fill in all fields');
+      setError("Please fill in all fields");
       return;
     }
 
-    const result = await onAuth('login', formData);
+    const result = await onAuth("login", formData);
 
     if (!result.success) {
-      setError(result.message || 'Login failed');
+      setError(result.message || "Login failed");
     }
   };
 
   return (
     <div className="login-form">
       <h2>Welcome Back</h2>
-      <p style={{ color: 'var(--color-text-secondary)', marginBottom: '2rem' }}>
+      <p style={{ color: "var(--color-text-secondary)", marginBottom: "2rem" }}>
         Please enter your credentials to access your account
       </p>
 
@@ -82,7 +82,7 @@ const Login: React.FC<LoginProps> = ({ onAuth, isLoading = false }) => {
         </div>
 
         {error && (
-          <div className="error-message" style={{ color: 'red', marginBottom: '1rem' }}>
+          <div className="error-message" style={{ color: "red", marginBottom: "1rem" }}>
             {error}
           </div>
         )}
@@ -92,7 +92,7 @@ const Login: React.FC<LoginProps> = ({ onAuth, isLoading = false }) => {
           disabled={isLoading}
           className="submit-button"
         >
-          {isLoading ? 'Logging in...' : 'Log in'}
+          {isLoading ? "Logging in..." : "Log in"}
         </button>
       </form>
     </div>

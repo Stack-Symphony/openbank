@@ -1,5 +1,5 @@
-import React from 'react';
-import { OpenBankLogo } from './CustomIcons';
+import React from "react";
+import { OpenBankLogo } from "./CustomIcons";
 
 export const BrandingPanel = () => {
   return (
@@ -18,7 +18,7 @@ export const BrandingPanel = () => {
       {/* Content Container */}
       <div className="branding-content">
         <div className="logo-circle">
-           <OpenBankLogo className="logo-svg" style={{ width: '6rem', height: '6rem', filter: 'drop-shadow(0 0 15px rgba(77,181,255,0.4))' }} />
+           <OpenBankLogo className="logo-svg" style={{ width: "6rem", height: "6rem", filter: "drop-shadow(0 0 15px rgba(77,181,255,0.4))" }} />
         </div>
         <h1 className="brand-title">
           Open<strong>Bank</strong>
