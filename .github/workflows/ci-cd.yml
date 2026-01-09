@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 18
 
-      # Set up Docker
+      # Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -27,28 +27,28 @@ jobs:
         working-directory: ./backend
         run: npm install
 
-      # Lint backend (does not fail workflow)
+      # Lint backend
       - name: Lint backend
         working-directory: ./backend
-        run: npm run lint || true  # prevents exit code 1
+        run: npm run lint || true
 
       # Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm install
 
-      # Lint frontend (does not fail workflow)
+      # Lint frontend
       - name: Lint frontend
         working-directory: ./frontend
         run: npm run lint || true
 
       # Build backend Docker image
       - name: Build backend Docker image
-        run: docker build  --load -t ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest ./backend
+        run: docker buildx build --load -t openbank-backend:latest -f backend/Dockerfile backend
 
       # Build frontend Docker image
       - name: Build frontend Docker image
-        run: docker build  --load -t ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest ./frontend
+        run: docker buildx build --load -t openbank-frontend:latest -f frontend/Dockerfile frontend
 
   deploy:
     needs: build-test
@@ -67,15 +67,11 @@ jobs:
 
       # Push backend image
       - name: Push backend image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest ./backend
-          docker push ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest
 
       # Push frontend image
       - name: Push frontend image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest ./frontend
-          docker push ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest
 
       # Set up kubectl
       - name: Set up kubectl
