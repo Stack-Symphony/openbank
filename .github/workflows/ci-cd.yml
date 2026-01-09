@@ -44,11 +44,11 @@ jobs:
 
       # Build backend Docker image
       - name: Build backend Docker image
-        run: docker buildx build --load -t openbank-backend:latest -f backend/Dockerfile backend
+        run: docker buildx build --load -t openbank-backend:latest -f backend/Dockerfile .
 
       # Build frontend Docker image
       - name: Build frontend Docker image
-        run: docker buildx build --load -t openbank-frontend:latest -f frontend/Dockerfile frontend
+        run: docker buildx build --load -t openbank-frontend:latest -f frontend/Dockerfile .
 
   deploy:
     needs: build-test
@@ -64,6 +64,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Tag backend image for Docker Hub
+      - name: Tag backend image
+        run: |
+          docker tag openbank-backend:latest ${{ secrets.DOCKER_USERNAME }}/openbank-backend:latest
+
+      # Tag frontend image for Docker Hub
+      - name: Tag frontend image
+        run: |
+          docker tag openbank-frontend:latest ${{ secrets.DOCKER_USERNAME }}/openbank-frontend:latest
 
       # Push backend image
       - name: Push backend image
