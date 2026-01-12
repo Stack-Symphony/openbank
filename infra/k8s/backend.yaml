@@ -1,8 +1,9 @@
-# k8s/openbank-backend.yaml
+# backend-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: openbank-backend
+  namespace: openbank
   labels:
     app: openbank-backend
 spec:
@@ -17,12 +18,14 @@ spec:
     spec:
       containers:
       - name: backend
-        image: openbank/backend:latest  # Use your actual image name
+        image: openbank/backend:latest
+        imagePullPolicy: IfNotPresent   # ← better default for most cases
         ports:
-        - containerPort: 8080  # Adjust port based on your backend
+        - containerPort: 8080
         env:
         - name: NODE_ENV
           value: "production"
+        # Add your MongoDB connection env vars here if needed
         resources:
           requests:
             memory: "256Mi"
@@ -32,7 +35,7 @@ spec:
             cpu: "500m"
         readinessProbe:
           httpGet:
-            path: /health  # Adjust health check path
+            path: /health
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
@@ -42,16 +45,18 @@ spec:
             port: 8080
           initialDelaySeconds: 15
           periodSeconds: 10
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: openbank-backend-service
+  name: openbank-backend
+  namespace: openbank
 spec:
   selector:
     app: openbank-backend
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
+  - port: 5000          # what Ingress & frontend will use
+    targetPort: 8080    # real container port
+    protocol: TCP
   type: ClusterIP

@@ -4,7 +4,8 @@ metadata:
   name: openbank-ingress
   namespace: openbank
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
@@ -13,20 +14,21 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: openbank.example.com  # Change to your domain
+  - host: openbank.local    # ← CHANGE THIS!
     http:
       paths:
+      - path: /api(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: openbank-backend
+            port:
+              number: 5000
+
       - path: /
         pathType: Prefix
         backend:
           service:
             name: openbank-frontend
             port:
-              number: 3000
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: openbank-backend
-            port:
-              number: 5000
+              number: 80

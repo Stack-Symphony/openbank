@@ -11,8 +11,8 @@ spec:
     app: openbank
     component: frontend
   ports:
-  - port: 3000
-    targetPort: 3000
+  - port: 80
+    targetPort: 80
     protocol: TCP
     name: http
   type: LoadBalancer
