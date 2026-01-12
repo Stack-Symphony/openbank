@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openbank-backend
+  namespace: openbank
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: openbank-backend
+  template:
+    metadata:
+      labels:
+        app: openbank-backend
+    spec:
+      containers:
+      - name: backend
+        image: openbank/backend:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: openbank-secrets
+              key: mongodb-uri
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: openbank-secrets
+              key: jwt-secret
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 5000
+          initialDelaySeconds: 45
+          periodSeconds: 15

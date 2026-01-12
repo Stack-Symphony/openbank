@@ -3,16 +3,12 @@ kind: Service
 metadata:
   name: openbank-backend
   namespace: openbank
-  labels:
-    app: openbank
-    component: backend
 spec:
   selector:
-    app: openbank
-    component: backend
+    app: openbank-backend
   ports:
   - port: 5000
-    targetPort: 8080
+    targetPort: 5000
     protocol: TCP
     name: http
   type: ClusterIP
