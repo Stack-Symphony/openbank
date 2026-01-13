@@ -1,4 +1,4 @@
-// server.js - FULL UPDATED CODE WITH METRICS
+// server.js - UPDATED VERSION WITH IMPROVED METRICS
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -27,7 +27,8 @@ const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:8080",
     "http://127.0.0.1:3000",
-    "http://127.0.0.1:5173"
+    "http://127.0.0.1:5173",
+    "http://localhost:3001"  // Added for Grafana access
 ].filter(Boolean);
 
 const corsOptions = {
@@ -58,38 +59,53 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // ----------------------------------------------------
-// PROMETHEUS METRICS CONFIGURATION
+// IMPROVED PROMETHEUS METRICS CONFIGURATION
 // ----------------------------------------------------
 const metricsMiddleware = promBundle({
   includeMethod: true,
   includePath: true,
   includeStatusCode: true,
   includeUp: true,
-  customLabels: { project: "openbank" },
-  promClient: { collectDefaultMetrics: { timeout: 5000 } }
+  customLabels: { 
+    project_name: 'openbank', 
+    project_type: 'api',
+    environment: process.env.NODE_ENV || 'development'
+  },
+  promClient: {
+    collectDefaultMetrics: {
+      timeout: 1000,
+      prefix: 'openbank_nodejs_'
+    }
+  },
+  normalizePath: [
+    ['^/api/user/.+', '/api/user/#id'],
+    ['^/api/transactions/.+', '/api/transactions/#id'],
+    ['^/api/auth/.+', '/api/auth/#action']
+  ],
+  httpDurationMetricName: 'openbank_http_request_duration_seconds'
 });
 
 app.use(metricsMiddleware);
 
 // ----------------------------------------------------
-// CUSTOM METRICS
+// CUSTOM METRICS (ENHANCED)
 // ----------------------------------------------------
 const transactionCounter = new client.Counter({
   name: "openbank_transactions_total",
   help: "Total number of transactions",
-  labelNames: ["type", "account", "status"]
+  labelNames: ["type", "account_type", "status", "currency"]
 });
 
 const activeUsersGauge = new client.Gauge({
-  name: "openbank_active_users",
+  name: "openbank_active_users_total",
   help: "Number of active users in the last 15 minutes"
 });
 
 const httpRequestDuration = new client.Histogram({
-  name: "openbank_http_request_duration_seconds",
-  help: "Duration of HTTP requests in seconds",
-  labelNames: ["method", "route", "status_code"],
-  buckets: [0.1, 0.5, 1, 2, 5]
+  name: "openbank_http_request_duration_custom_seconds",
+  help: "Custom duration of HTTP requests in seconds",
+  labelNames: ["method", "route", "status_code", "endpoint_type"],
+  buckets: [0.1, 0.3, 0.5, 1, 2, 5]
 });
 
 const databaseConnectionGauge = new client.Gauge({
@@ -100,29 +116,85 @@ const databaseConnectionGauge = new client.Gauge({
 const errorCounter = new client.Counter({
   name: "openbank_errors_total",
   help: "Total number of errors",
-  labelNames: ["type", "endpoint"]
+  labelNames: ["type", "endpoint", "status_code"]
 });
 
-// Track active users (simplified)
-let activeUsers = new Set();
+const apiRequestsCounter = new client.Counter({
+  name: "openbank_api_requests_total",
+  help: "Total number of API requests",
+  labelNames: ["method", "endpoint", "status_code"]
+});
 
+const responseSizeHistogram = new client.Histogram({
+  name: "openbank_response_size_bytes",
+  help: "Size of HTTP responses in bytes",
+  labelNames: ["endpoint"],
+  buckets: [100, 500, 1000, 5000, 10000, 50000]
+});
+
+// Track active users (improved with timeout cleanup)
+let activeUsers = new Map();
+
+// ----------------------------------------------------
+// ENHANCED METRICS MIDDLEWARE
+// ----------------------------------------------------
 app.use((req, res, next) => {
   const start = Date.now();
+  const originalSend = res.send;
+  let responseBody = "";
+  
+  // Intercept response to measure size
+  res.send = function(body) {
+    if (typeof body === "string") {
+      responseBody = body;
+    } else if (Buffer.isBuffer(body)) {
+      responseBody = body.toString();
+    } else if (typeof body === "object") {
+      responseBody = JSON.stringify(body);
+    }
+    return originalSend.call(this, body);
+  };
   
   res.on("finish", () => {
     const duration = (Date.now() - start) / 1000;
+    const endpointType = req.path.startsWith('/api/') ? 'api' : 'system';
+    
+    // Record HTTP duration
     httpRequestDuration
-      .labels(req.method, req.route?.path || req.path, res.statusCode)
+      .labels(req.method, req.route?.path || req.path, res.statusCode, endpointType)
       .observe(duration);
+    
+    // Record API request count
+    if (endpointType === 'api') {
+      apiRequestsCounter.inc({
+        method: req.method,
+        endpoint: req.path,
+        status_code: res.statusCode
+      });
+    }
+    
+    // Record response size
+    if (responseBody) {
+      responseSizeHistogram
+        .labels(req.path)
+        .observe(Buffer.byteLength(responseBody, 'utf8'));
+    }
   });
   
+  // Track active users with improved cleanup
   if (req.user && req.user.id) {
-    activeUsers.add(req.user.id);
+    const userId = req.user.id;
+    activeUsers.set(userId, Date.now());
+    
+    // Clean up old entries
+    const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
+    for (const [id, timestamp] of activeUsers.entries()) {
+      if (timestamp < fifteenMinutesAgo) {
+        activeUsers.delete(id);
+      }
+    }
+    
     activeUsersGauge.set(activeUsers.size);
-    setTimeout(() => {
-      activeUsers.delete(req.user.id);
-      activeUsersGauge.set(activeUsers.size);
-    }, 15 * 60 * 1000);
   }
   
   next();
@@ -144,16 +216,88 @@ mongoose.connection.on("disconnected", () => {
 });
 
 // ----------------------------------------------------
-// METRICS ENDPOINT
+// METRICS ENDPOINT (ENHANCED)
 // ----------------------------------------------------
 app.get("/metrics", async (req, res) => {
   try {
     res.set("Content-Type", client.register.contentType);
+    
+    // Update active users count before sending metrics
+    const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
+    for (const [id, timestamp] of activeUsers.entries()) {
+      if (timestamp < fifteenMinutesAgo) {
+        activeUsers.delete(id);
+      }
+    }
+    activeUsersGauge.set(activeUsers.size);
+    
     const metrics = await client.register.metrics();
     res.end(metrics);
   } catch (error) {
-    res.status(500).end(error);
+    console.error("Metrics endpoint error:", error);
+    errorCounter.inc({ type: "metrics_error", endpoint: "/metrics", status_code: 500 });
+    res.status(500).json({ error: "Failed to generate metrics" });
   }
+});
+
+// ----------------------------------------------------
+// ENHANCED HEALTH CHECK ENDPOINTS
+// ----------------------------------------------------
+app.get("/health", (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
+  const uptime = process.uptime();
+  const memoryUsage = process.memoryUsage();
+  
+  res.status(200).json({
+    status: "UP",
+    timestamp: new Date().toISOString(),
+    service: "openbank-backend",
+    version: "1.0.0",
+    uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`,
+    database: dbStatus,
+    node: {
+      version: process.version,
+      memory: {
+        rss: `${Math.round(memoryUsage.rss / 1024 / 1024)} MB`,
+        heapTotal: `${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`,
+        heapUsed: `${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`
+      }
+    },
+    metrics: {
+      endpoint: "/metrics",
+      activeUsers: activeUsers.size,
+      customMetrics: [
+        "openbank_transactions_total",
+        "openbank_active_users_total",
+        "openbank_errors_total",
+        "openbank_api_requests_total"
+      ]
+    },
+    cors: {
+      allowedOrigins: allowedOrigins,
+      credentials: true
+    }
+  });
+});
+
+app.get("/health/liveness", (req, res) => {
+  res.status(200).json({ 
+    status: "ALIVE",
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get("/health/readiness", (req, res) => {
+  const dbReady = mongoose.connection.readyState === 1;
+  
+  res.status(dbReady ? 200 : 503).json({
+    status: dbReady ? "READY" : "NOT_READY",
+    timestamp: new Date().toISOString(),
+    database: dbReady ? "connected" : "disconnected",
+    checks: {
+      database: dbReady
+    }
+  });
 });
 
 // ----------------------------------------------------
@@ -170,7 +314,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/transactions", transactionRoutes);
 
 // ----------------------------------------------------
-// HEALTH CHECK ROUTE WITH METRICS
+// ENHANCED API HEALTH CHECK (keeping your existing)
 // ----------------------------------------------------
 app.get("/api/health", (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
@@ -210,20 +354,33 @@ app.get("/", (req, res) => {
       auth: "/api/auth",
       users: "/api/user",
       transactions: "/api/transactions",
-      health: "/api/health",
+      health: {
+        root: "/health",
+        liveness: "/health/liveness",
+        readiness: "/health/readiness",
+        api: "/api/health"
+      },
       test: "/api/test",
       metrics: "/metrics"
     },
-    cors: { allowedOrigins: allowedOrigins }
+    cors: { allowedOrigins: allowedOrigins },
+    monitoring: {
+      prometheus: "/metrics",
+      grafana: "http://localhost:3001"
+    }
   });
 });
 
 // ----------------------------------------------------
-// ERROR HANDLING MIDDLEWARE WITH METRICS
+// ENHANCED ERROR HANDLING MIDDLEWARE WITH METRICS
 // ----------------------------------------------------
-app.use((err, req, _next) => {  // <-- next renamed to _next to fix ESLint warning
+app.use((err, req, res, next) => {
   if (err.message.includes("CORS")) {
-    errorCounter.inc({ type: "cors_error", endpoint: req.path });
+    errorCounter.inc({ 
+      type: "cors_error", 
+      endpoint: req.path, 
+      status_code: 403 
+    });
     return res.status(403).json({
       status: "error",
       message: "CORS Error: Request blocked. Check your frontend URL.",
@@ -232,26 +389,42 @@ app.use((err, req, _next) => {  // <-- next renamed to _next to fix ESLint warni
   }
   
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode);
-  errorCounter.inc({ type: "server_error", endpoint: req.path });
   
-  res.json({
+  // Record error in metrics
+  errorCounter.inc({ 
+    type: "server_error", 
+    endpoint: req.path,
+    status_code: statusCode
+  });
+  
+  res.status(statusCode).json({
     status: "error",
     message: err.message,
+    timestamp: new Date().toISOString(),
+    path: req.path,
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
 });
 
-// 404 Handler
+// 404 Handler with metrics
 app.use((req, res) => {
-  errorCounter.inc({ type: "not_found", endpoint: req.path });
+  errorCounter.inc({ 
+    type: "not_found", 
+    endpoint: req.path, 
+    status_code: 404 
+  });
+  
   res.status(404).json({
     status: "error",
     message: `Route ${req.originalUrl} not found`,
+    timestamp: new Date().toISOString(),
     availableRoutes: [
-      "/api/auth",
-      "/api/user", 
-      "/api/transactions",
+      "/api/auth/*",
+      "/api/user/*", 
+      "/api/transactions/*",
+      "/health",
+      "/health/liveness",
+      "/health/readiness",
       "/api/health",
       "/api/test",
       "/metrics"
@@ -259,40 +432,101 @@ app.use((req, res) => {
   });
 });
 
-const incrementTransactionCounter = (type, account, status = "completed") => {
-  transactionCounter.inc({ type, account, status });
+// ----------------------------------------------------
+// METRICS HELPER FUNCTIONS (for use in other files)
+// ----------------------------------------------------
+const incrementTransactionCounter = (type, accountType, status = "completed", currency = "ZAR") => {
+  transactionCounter.inc({ 
+    type, 
+    account_type: accountType, 
+    status, 
+    currency 
+  });
+};
+
+const recordError = (type, endpoint, statusCode = 500) => {
+  errorCounter.inc({ type, endpoint, status_code: statusCode });
+};
+
+const getActiveUsersCount = () => activeUsers.size;
+
+// ----------------------------------------------------
+// REGISTER METRICS FOR EXPORT
+// ----------------------------------------------------
+const metrics = {
+  transactionCounter,
+  activeUsersGauge,
+  errorCounter,
+  apiRequestsCounter,
+  responseSizeHistogram,
+  databaseConnectionGauge,
+  httpRequestDuration,
+  incrementTransactionCounter,
+  recordError,
+  getActiveUsersCount
 };
 
 module.exports = {
-  incrementTransactionCounter,
-  errorCounter,
-  activeUsersGauge,
+  metrics,
   app
 };
 
 // ----------------------------------------------------
-// SERVER STARTUP
+// SERVER STARTUP WITH ENHANCED LOGGING
 // ----------------------------------------------------
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+// Start server with graceful shutdown
+const server = app.listen(PORT, () => {
   updateDatabaseStatus();
   
-  console.log("=======================================");
-  console.log(` Server running in ${process.env.NODE_ENV || "development"} mode`);
-  console.log(` Port: ${PORT}`);
-  console.log("=======================================");
-  console.log(` Health Check: http://localhost:${PORT}/api/health`);
-  console.log(` Test Route: http://localhost:${PORT}/api/test`);
-  console.log(` Metrics: http://localhost:${PORT}/metrics`);
-  console.log(` CORS configured for origins: ${allowedOrigins.join(", ")}`);
-  console.log(` API Base URL: http://localhost:${PORT}`);
-  console.log("=======================================");
-  console.log(" Prometheus metrics enabled:");
-  console.log("   - Transaction tracking");
+  console.log("\n" + "=".repeat(55));
+  console.log("OPENBANK BACKEND SERVER STARTED");
+  console.log("=".repeat(55));
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`Port: ${PORT}`);
+  console.log(`Database: ${mongoose.connection.readyState === 1 ? "Connected" : "Disconnected"}`);
+  console.log("-".repeat(55));
+  console.log("ENDPOINTS:");
+  console.log(`   Metrics:     http://localhost:${PORT}/metrics`);
+  console.log(`   Health:      http://localhost:${PORT}/health`);
+  console.log(`   Liveness:    http://localhost:${PORT}/health/liveness`);
+  console.log(`   Readiness:   http://localhost:${PORT}/health/readiness`);
+  console.log(`   API Test:    http://localhost:${PORT}/api/test`);
+  console.log(`   API Root:    http://localhost:${PORT}/`);
+  console.log("-".repeat(55));
+  console.log("CORS Origins:");
+  allowedOrigins.forEach(origin => console.log(`   - ${origin}`));
+  console.log("=".repeat(55));
+  console.log("PROMETHEUS METRICS ENABLED:");
+  console.log("   - HTTP Request tracking & timing");
   console.log("   - Active user monitoring");
+  console.log("   - Transaction counters");
   console.log("   - Database connection status");
-  console.log("   - HTTP request duration");
-  console.log("   - Error tracking");
-  console.log("=======================================");
+  console.log("   - Error tracking & categorization");
+  console.log("   - Response size monitoring");
+  console.log("=".repeat(55) + "\n");
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    mongoose.connection.close(false, () => {
+      console.log('Database connection closed.');
+      process.exit(0);
+    });
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    mongoose.connection.close(false, () => {
+      console.log('Database connection closed.');
+      process.exit(0);
+    });
+  });
 });

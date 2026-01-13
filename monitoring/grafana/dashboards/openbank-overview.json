@@ -1,0 +1,177 @@
+{
+  "dashboard": {
+    "title": "OpenBank Overview",
+    "tags": ["openbank", "banking", "monitoring"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Health Status",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [{
+          "expr": "up{job=\"nodejs-backend\"}",
+          "legendFormat": "Backend API"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": {"text": "DOWN", "color": "red"},
+                  "1": {"text": "UP", "color": "green"}
+                }
+              }
+            ],
+            "unit": "none"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Database Connection",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [{
+          "expr": "openbank_database_connection_status",
+          "legendFormat": "MongoDB"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": null},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": {"text": "DISCONNECTED", "color": "red"},
+                  "1": {"text": "CONNECTED", "color": "green"}
+                }
+              }
+            ],
+            "unit": "none"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Active Users",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [{
+          "expr": "openbank_active_users_total",
+          "legendFormat": "Active Users"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none",
+            "min": 0
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Total Transactions",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [{
+          "expr": "openbank_transactions_total",
+          "legendFormat": "Transactions"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "none",
+            "min": 0
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "HTTP Request Rate (per second)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+        "targets": [{
+          "expr": "rate(http_request_duration_seconds_count[1m])",
+          "legendFormat": "{{method}} {{route}}"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "reqps"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "API Response Time (95th percentile)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24},
+        "targets": [{
+          "expr": "histogram_quantile(0.95, rate(openbank_http_request_duration_custom_seconds_bucket[5m]))",
+          "legendFormat": "Response Time"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "min": 0
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "Error Rate (per minute)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 32},
+        "targets": [{
+          "expr": "rate(openbank_errors_total[5m]) * 60",
+          "legendFormat": "{{type}} {{endpoint}}"
+        }],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "errors/min",
+            "min": 0
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "System Memory Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40},
+        "targets": [
+          {
+            "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes",
+            "legendFormat": "Used Memory"
+          },
+          {
+            "expr": "node_memory_MemAvailable_bytes",
+            "legendFormat": "Available Memory"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "bytes"
+          }
+        }
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "10s",
+    "schemaVersion": 27,
+    "version": 1,
+    "uid": "openbank-overview"
+  }
+}
