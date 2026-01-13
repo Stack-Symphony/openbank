@@ -1,10 +1,30 @@
+# infra/k8s/mongo-deployment.yaml
+
+---
+# Headless Service (required for stable DNS names in StatefulSet)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: openbank
+spec:
+  clusterIP: None               # Headless service - very important for replica set
+  selector:
+    app: mongo
+  ports:
+    - port: 27017
+      targetPort: 27017
+      name: mongodb
+
+---
+# StatefulSet with single-node replica set
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongo
   namespace: openbank
 spec:
-  serviceName: mongo
+  serviceName: mongo              # Must match the headless service name
   replicas: 1
   selector:
     matchLabels:
@@ -14,11 +34,20 @@ spec:
       labels:
         app: mongo
     spec:
+      terminationGracePeriodSeconds: 10
       containers:
         - name: mongo
-          image: mongo:5.0
+          image: mongo:5.0          # You can change to mongo:6.0 or mongo:7.0
+          command: ["mongod"]
+          args:
+            - "--replSet"
+            - "rs0"                 # Replica set name - keep this consistent
+            - "--bind_ip_all"
+            - "--port"
+            - "27017"
           ports:
             - containerPort: 27017
+              name: mongodb
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
               valueFrom:
@@ -33,6 +62,24 @@ spec:
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          readinessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - "db.adminCommand('ping')"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
   volumeClaimTemplates:
     - metadata:
         name: mongo-data
@@ -40,17 +87,4 @@ spec:
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 1Gi
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongo
-  namespace: openbank
-spec:
-  selector:
-    app: mongo
-  ports:
-    - port: 27017
-      targetPort: 27017
+            storage: 2Gi            # Increased slightly - adjust as needed
