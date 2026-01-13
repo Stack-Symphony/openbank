@@ -15,6 +15,13 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: secret
       MONGO_INITDB_DATABASE: openbank
+    # Alternative healthcheck without mongosh (simpler)
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Backend Service (Node.js)
   backend:
@@ -31,9 +38,9 @@ services:
       JWT_SECRET: "change-me-in-prod"
       JWT_EXPIRE: "30d"
       FRONTEND_URL: "http://localhost:3000"
+    # Remove healthcheck condition for now to avoid startup issues
     depends_on:
       - mongo
-      - prometheus
     ports:
       - "5000:5000"
     healthcheck:
@@ -41,8 +48,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    networks:
-      - monitoring
+      start_period: 40s
 
   # Frontend Service (React/Vite)
   frontend:
@@ -76,12 +82,6 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
       - '--storage.tsdb.retention.time=200h'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-    depends_on:
-      - backend
-    networks:
-      - monitoring
 
   # Grafana for visualization
   grafana:
@@ -93,17 +93,12 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-clock-panel
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
-    depends_on:
-      - prometheus
-    networks:
-      - monitoring
 
-  # Node Exporter for system metrics
+  # Node Exporter for system metrics (optional - can be removed if causing issues)
   node-exporter:
     image: prom/node-exporter:latest
     container_name: openbank-node-exporter
@@ -118,13 +113,10 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    networks:
-      - monitoring
 
-  # MongoDB Exporter
+  # MongoDB Exporter - USING WORKING IMAGE
   mongodb-exporter:
-    image: percona/mongodb_exporter:latest
+    image: bitnami/mongodb-exporter:latest
     container_name: openbank-mongodb-exporter
     restart: unless-stopped
     ports:
@@ -133,10 +125,8 @@ services:
       - MONGODB_URI=mongodb://admin:secret@mongo:27017/openbank?authSource=admin
     depends_on:
       - mongo
-    networks:
-      - monitoring
 
-  # cAdvisor for container metrics
+  # cAdvisor for container metrics (optional)
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: openbank-cadvisor
@@ -150,16 +140,8 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     privileged: true
-    devices:
-      - /dev/kmsg
-    networks:
-      - monitoring
 
 volumes:
   mongo_data:
   prometheus_data:
   grafana_data:
-
-networks:
-  monitoring:
-    driver: bridge
