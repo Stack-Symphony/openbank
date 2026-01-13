@@ -104,7 +104,7 @@ jobs:
         uses: azure/k8s-set-context@v4
         with:
           method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}     # ← must contain raw kubeconfig YAML (NOT base64!)
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}     # ← must contain raw kubeconfig YAML (NOT base64!)
 
       - name: Verify cluster connection
         run: |
