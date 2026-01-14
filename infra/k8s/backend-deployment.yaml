@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: backend
-        image: michelle66/openbank/backend:latest
-        imagePullPolicy: IfNotPresent
+        image: michelle66/openbank/backend:local
+        imagePullPolicy: Never
         ports:
         - containerPort: 5000
         env:
