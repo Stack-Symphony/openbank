@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  openbank-dashboard.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "OpenBank API Monitoring",
+        "tags": ["openbank", "api", "microservices"],
+        "timezone": "browser",
+        "schemaVersion": 37,
+        "version": 0,
+        "refresh": "10s",
+        "panels": [
+          {
+            "id": 1,
+            "title": "API Request Rate",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+            "targets": [
+              {
+                "expr": "rate(http_requests_total{service=\"openbank-backend\"}[5m])",
+                "legendFormat": "{{method}} {{endpoint}}",
+                "refId": "A"
+              }
+            ],
+            "options": {
+              "legend": {"displayMode": "table", "placement": "bottom"},
+              "tooltip": {"mode": "multi"}
+            }
+          },
+          {
+            "id": 2,
+            "title": "API Latency (95th percentile)",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{service=\"openbank-backend\"}[5m]))",
+                "legendFormat": "{{method}} {{endpoint}}",
+                "refId": "A"
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "title": "HTTP Status Codes",
+            "type": "stat",
+            "gridPos": {"h": 6, "w": 6, "x": 0, "y": 8},
+            "targets": [
+              {
+                "expr": "sum by (status) (rate(http_requests_total{service=\"openbank-backend\"}[5m]))",
+                "refId": "A"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {"mode": "thresholds"},
+                "mappings": [],
+                "thresholds": {
+                  "steps": [
+                    {"color": "red", "value": null},
+                    {"color": "orange", "value": 400},
+                    {"color": "green", "value": 200}
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "id": 4,
+            "title": "Pod CPU Usage",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
+            "targets": [
+              {
+                "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"openbank\", container!=\"POD\"}[5m])) by (pod)",
+                "legendFormat": "{{pod}}",
+                "refId": "A"
+              }
+            ]
+          },
+          {
+            "id": 5,
+            "title": "Pod Memory Usage",
+            "type": "graph",
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+            "targets": [
+              {
+                "expr": "sum(container_memory_working_set_bytes{namespace=\"openbank\", container!=\"POD\"}) by (pod)",
+                "legendFormat": "{{pod}}",
+                "refId": "A"
+              }
+            ]
+          },
+          {
+            "id": 6,
+            "title": "Active Connections",
+            "type": "stat",
+            "gridPos": {"h": 6, "w": 6, "x": 6, "y": 8},
+            "targets": [
+              {
+                "expr": "sum(node_network_receive_bytes_total{namespace=\"openbank\"})",
+                "refId": "A"
+              }
+            ]
+          }
+        ],
+        "time": {"from": "now-1h", "to": "now"}
+      }
+    }

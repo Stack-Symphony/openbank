@@ -25,7 +25,7 @@ spec:
             port:
               number: 3000
       - path: /api(/|$)(.*)
-        pathType: Prefix
+        pathType: ImplementationSpecific
         backend:
           service:
             name: openbank-backend
