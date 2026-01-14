@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: michelle66/openbank-frontend:latest
+          image: michelle66/openbank-frontend:local
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
