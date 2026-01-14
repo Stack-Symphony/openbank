@@ -19,7 +19,7 @@ spec:
       containers:
       - name: backend
         image: openbank/backend:latest
-        imagePullPolicy: IfNotPresent   # ← better default for most cases
+        imagePullPolicy: Never   # ← better default for most cases
         ports:
         - containerPort: 8080
         env:
