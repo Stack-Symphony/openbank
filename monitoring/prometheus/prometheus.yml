@@ -26,7 +26,7 @@ scrape_configs:
           service: 'prometheus'
           component: 'monitoring'
 
-  # Node.js Backend metrics
+  # Node.js Backend metrics with retry configuration
   - job_name: 'nodejs-backend'
     metrics_path: '/metrics'
     static_configs:
@@ -39,10 +39,15 @@ scrape_configs:
     scrape_interval: 10s
     scrape_timeout: 5s
     honor_labels: true
+    # Add retry configuration for initial startup
     relabel_configs:
       - source_labels: [__address__]
         target_label: instance
         replacement: 'backend:5000'
+    # This helps Prometheus handle targets that aren't immediately available
+    scrape_configs:
+      http_sd_configs:
+        - refresh_interval: 30s
 
   # Node.js health endpoint
   - job_name: 'nodejs-health'
