@@ -1,22 +1,25 @@
-# Backend Dockerfile
-
 FROM node:18-alpine
+
 WORKDIR /app
 
-# Copy package.json and package-lock.json first (caching npm install)
+# Copy package files
 COPY package*.json ./
-RUN npm install --production
 
-# Copy the rest of the application code
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
 COPY . .
 
-# Set environment variables
-ENV PORT=5000
-ENV NODE_ENV=production
-ENV MONGODB_URI=mongodb://mongo:27017/openbank 
+# Install PM2 for process management (optional but recommended)
+RUN npm install -g pm2
 
-# Expose port
+# Expose ports
 EXPOSE 5000
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
 # Start the application
-CMD ["node", "server.js"]
+CMD ["pm2-runtime", "start", "server.js"]

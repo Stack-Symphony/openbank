@@ -1,0 +1,43 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: 'openbank-development'
+
+# Alert rules
+rule_files:
+  - "alert.rules.yml"
+
+scrape_configs:
+  # OpenBank Backend (Node.js)
+  - job_name: 'openbank-backend'
+    static_configs:
+      - targets: ['backend:5000']  # Use Docker service name
+    metrics_path: '/metrics'  # Your backend metrics endpoint
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # MongoDB exporter
+  - job_name: 'mongodb-exporter'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+
+  # cAdvisor for container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Grafana (optional)
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']

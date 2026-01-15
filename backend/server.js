@@ -9,6 +9,12 @@ const userRoutes = require("./routes/userRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const promBundle = require("express-prom-bundle");
 const client = require("prom-client");
+const dbMetricsMiddleware = require("./src/middleware/dbMetrics");
+const { 
+  incrementTransaction, 
+  incrementAccountCreation,
+  updateTotalBalance 
+} = require("/backend/src/metrics");
 
 // Load environment variables
 dotenv.config();
@@ -55,7 +61,7 @@ const corsOptions = {
     maxAge: 86400,
     exposedHeaders: ["Authorization", "Content-Length", "X-Total-Count"]
 };
-
+app.use(dbMetricsMiddleware);
 app.use(cors(corsOptions));
 
 // ----------------------------------------------------
@@ -67,22 +73,22 @@ const metricsMiddleware = promBundle({
   includeStatusCode: true,
   includeUp: true,
   customLabels: { 
-    project_name: 'openbank', 
-    project_type: 'api',
-    environment: process.env.NODE_ENV || 'development'
+    project_name: "openbank", 
+    project_type: "api",
+    environment: process.env.NODE_ENV || "development"
   },
   promClient: {
     collectDefaultMetrics: {
       timeout: 1000,
-      prefix: 'openbank_nodejs_'
+      prefix: "openbank_nodejs_"
     }
   },
   normalizePath: [
-    ['^/api/user/.+', '/api/user/#id'],
-    ['^/api/transactions/.+', '/api/transactions/#id'],
-    ['^/api/auth/.+', '/api/auth/#action']
+    ["^/api/user/.+", "/api/user/#id"],
+    ["^/api/transactions/.+", "/api/transactions/#id"],
+    ["^/api/auth/.+", "/api/auth/#action"]
   ],
-  httpDurationMetricName: 'openbank_http_request_duration_seconds'
+  httpDurationMetricName: "openbank_http_request_duration_seconds"
 });
 
 app.use(metricsMiddleware);
@@ -157,7 +163,7 @@ app.use((req, res, next) => {
   
   res.on("finish", () => {
     const duration = (Date.now() - start) / 1000;
-    const endpointType = req.path.startsWith('/api/') ? 'api' : 'system';
+    const endpointType = req.path.startsWith("/api/") ? "api" : "system";
     
     // Record HTTP duration
     httpRequestDuration
@@ -165,7 +171,7 @@ app.use((req, res, next) => {
       .observe(duration);
     
     // Record API request count
-    if (endpointType === 'api') {
+    if (endpointType === "api") {
       apiRequestsCounter.inc({
         method: req.method,
         endpoint: req.path,
@@ -177,7 +183,7 @@ app.use((req, res, next) => {
     if (responseBody) {
       responseSizeHistogram
         .labels(req.path)
-        .observe(Buffer.byteLength(responseBody, 'utf8'));
+        .observe(Buffer.byteLength(responseBody, "utf8"));
     }
   });
   
@@ -509,23 +515,23 @@ const server = app.listen(PORT, () => {
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received. Shutting down gracefully...");
   server.close(() => {
-    console.log('Server closed.');
+    console.log("Server closed.");
     mongoose.connection.close(false, () => {
-      console.log('Database connection closed.');
+      console.log("Database connection closed.");
       process.exit(0);
     });
   });
 });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received. Shutting down gracefully...');
+process.on("SIGINT", () => {
+  console.log("SIGINT received. Shutting down gracefully...");
   server.close(() => {
-    console.log('Server closed.');
+    console.log("Server closed.");
     mongoose.connection.close(false, () => {
-      console.log('Database connection closed.');
+      console.log("Database connection closed.");
       process.exit(0);
     });
   });
