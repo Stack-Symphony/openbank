@@ -1,14 +1,24 @@
 const client = require("prom-client");
 
-// Enable default Node.js metrics
-const collectDefaultMetrics = client.collectDefaultMetrics;
-collectDefaultMetrics({ timeout: 10000, prefix: "openbank_node_" });
+/**
+ * ====================================================
+ * DEFAULT NODE METRICS
+ * ====================================================
+ */
+client.collectDefaultMetrics({
+  timeout: 10000,
+  prefix: "openbank_node_"
+});
 
-// Business-specific metrics
+/**
+ * ====================================================
+ * BUSINESS METRICS
+ * ====================================================
+ */
 const transactionCounter = new client.Counter({
   name: "openbank_transactions_total",
   help: "Total number of transactions",
-  labelNames: ["type", "status", "currency"]
+  labelNames: ["type", "account_type", "status", "currency"]
 });
 
 const accountCreationCounter = new client.Counter({
@@ -29,7 +39,11 @@ const loanApplicationCounter = new client.Counter({
   labelNames: ["status", "loan_type"]
 });
 
-// Financial metrics
+/**
+ * ====================================================
+ * FINANCIAL METRICS
+ * ====================================================
+ */
 const totalBalanceGauge = new client.Gauge({
   name: "openbank_total_balance",
   help: "Total balance across all accounts",
@@ -42,14 +56,52 @@ const averageTransactionValue = new client.Gauge({
   labelNames: ["currency"]
 });
 
-// Performance metrics
-const apiResponseTime = new client.Histogram({
-  name: "openbank_api_response_time_seconds",
-  help: "API response time in seconds",
-  labelNames: ["endpoint", "method", "status"],
-  buckets: [0.1, 0.5, 1, 2, 5, 10]
+/**
+ * ====================================================
+ * SYSTEM / PERFORMANCE METRICS (USED BY server.js)
+ * ====================================================
+ */
+const httpRequestDuration = new client.Histogram({
+  name: "openbank_http_request_duration_seconds",
+  help: "HTTP request duration in seconds",
+  labelNames: ["method", "endpoint", "status_code", "type"],
+  buckets: [0.1, 0.3, 0.5, 1, 2, 5]
 });
 
+const apiRequestsCounter = new client.Counter({
+  name: "openbank_api_requests_total",
+  help: "Total API requests",
+  labelNames: ["method", "endpoint", "status_code"]
+});
+
+const errorCounter = new client.Counter({
+  name: "openbank_errors_total",
+  help: "Total number of errors",
+  labelNames: ["type", "endpoint", "status_code"]
+});
+
+const responseSizeHistogram = new client.Histogram({
+  name: "openbank_response_size_bytes",
+  help: "Response size in bytes",
+  labelNames: ["endpoint"],
+  buckets: [100, 500, 1000, 5000, 10000, 50000]
+});
+
+const activeUsersGauge = new client.Gauge({
+  name: "openbank_active_users",
+  help: "Number of active users"
+});
+
+const databaseConnectionGauge = new client.Gauge({
+  name: "openbank_database_connection_status",
+  help: "Database connection status (1 = connected, 0 = disconnected)"
+});
+
+/**
+ * ====================================================
+ * DATABASE PERFORMANCE METRICS
+ * ====================================================
+ */
 const databaseQueryDuration = new client.Histogram({
   name: "openbank_database_query_duration_seconds",
   help: "Database query duration in seconds",
@@ -57,44 +109,88 @@ const databaseQueryDuration = new client.Histogram({
   buckets: [0.01, 0.05, 0.1, 0.5, 1, 2]
 });
 
-// Rate limiting metrics
+/**
+ * ====================================================
+ * RATE LIMIT METRICS
+ * ====================================================
+ */
 const rateLimitCounter = new client.Counter({
   name: "openbank_rate_limit_hits_total",
   help: "Total number of rate limit hits",
   labelNames: ["endpoint", "ip_address"]
 });
 
-// Export all metrics
+/**
+ * ====================================================
+ * HELPER FUNCTIONS (USED BY server.js & ROUTES)
+ * ====================================================
+ */
+const incrementTransactionCounter = (
+  type,
+  accountType,
+  status = "completed",
+  currency = "ZAR"
+) => {
+  transactionCounter.inc({
+    type,
+    account_type: accountType,
+    status,
+    currency
+  });
+};
+
+const recordError = (type, endpoint, statusCode = 500) => {
+  errorCounter.inc({
+    type,
+    endpoint,
+    status_code: statusCode
+  });
+};
+
+const getActiveUsersCount = () => {
+  try {
+    return activeUsersGauge.hashMap
+      ? Object.keys(activeUsersGauge.hashMap).length
+      : 0;
+  } catch {
+    return 0;
+  }
+};
+
+/**
+ * ====================================================
+ * EXPORTS (CRITICAL)
+ * ====================================================
+ */
 module.exports = {
   client,
+
+  // Business
   transactionCounter,
   accountCreationCounter,
   userRegistrationCounter,
   loanApplicationCounter,
+
+  // Financial
   totalBalanceGauge,
   averageTransactionValue,
-  apiResponseTime,
+
+  // System / API
+  httpRequestDuration,
+  apiRequestsCounter,
+  errorCounter,
+  responseSizeHistogram,
+  activeUsersGauge,
+  databaseConnectionGauge,
+
+  // DB
   databaseQueryDuration,
+
+  // Rate limit
   rateLimitCounter,
-  
-  // Helper functions
-  incrementTransaction: (type, status = "completed", currency = "ZAR") => {
-    transactionCounter.inc({ type, status, currency });
-  },
-  
-  incrementAccountCreation: (accountType) => {
-    accountCreationCounter.inc({ account_type: accountType });
-  },
-  
-  recordApiResponseTime: (endpoint, method, status, duration) => {
-    apiResponseTime.labels(endpoint, method, status).observe(duration);
-  },
-  
-  recordDatabaseQuery: (operation, collection, duration) => {
-    databaseQueryDuration.labels(operation, collection).observe(duration);
-  },
-  
-  updateTotalBalance: (currency, amount) => {
-    totalBalanceGauge.set({ currency }, amount);
-  }
+
+  // Helpers
+  incrementTransactionCounter,
+  recordError,
+  getActiveUsersCount
 };
