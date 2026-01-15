@@ -229,10 +229,33 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 OpenBank Backend running on port ${PORT}`);
 });
 
-// Graceful Shutdown
-process.on("SIGINT", () => {
-  server.close(() => mongoose.connection.close(false, () => process.exit(0)));
-});
-process.on("SIGTERM", () => {
-  server.close(() => mongoose.connection.close(false, () => process.exit(0)));
-});
+// ----------------------------------------------------
+// Graceful Shutdown (UPDATED for Mongoose 7+)
+// ----------------------------------------------------
+const gracefulShutdown = async (signal) => {
+  console.log(`\n${signal} received: shutting down gracefully...`);
+  
+  // Close the HTTP server
+  server.close(async () => {
+    console.log("HTTP server closed");
+    
+    try {
+      // Close MongoDB connection using promise (no callback)
+      await mongoose.connection.close();
+      console.log("MongoDB connection closed.");
+      process.exit(0);
+    } catch (err) {
+      console.error("Error closing MongoDB connection:", err);
+      process.exit(1);
+    }
+  });
+
+  // Force shutdown after 10 seconds if graceful shutdown fails
+  setTimeout(() => {
+    console.error("Could not close connections in time, forcefully shutting down:");
+    process.exit(1);
+  }, 10000);
+};
+
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
