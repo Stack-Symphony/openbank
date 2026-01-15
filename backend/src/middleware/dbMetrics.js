@@ -1,4 +1,4 @@
-const { recordDatabaseQuery } = require("/backend/src/metrics");
+const { recordDatabaseQuery } = require("../metrics");
 
 const dbMetricsMiddleware = (req, res, next) => {
   // Store original mongoose methods

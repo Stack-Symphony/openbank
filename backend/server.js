@@ -1,4 +1,4 @@
-// server.js - UPDATED VERSION WITH IMPROVED METRICS
+// server.js - FIXED VERSION
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -10,11 +10,20 @@ const transactionRoutes = require("./routes/transactionRoutes");
 const promBundle = require("express-prom-bundle");
 const client = require("prom-client");
 const dbMetricsMiddleware = require("./src/middleware/dbMetrics");
-const { 
-  incrementTransaction, 
-  incrementAccountCreation,
-  updateTotalBalance 
-} = require("/backend/src/metrics");
+
+// Import metrics from central file
+const {
+  transactionCounter,
+  activeUsersGauge,
+  httpRequestDuration,
+  errorCounter,
+  apiRequestsCounter,
+  responseSizeHistogram,
+  databaseConnectionGauge,
+  incrementTransactionCounter,
+  recordError,
+  getActiveUsersCount
+} = require("./src/metrics");
 
 // Load environment variables
 dotenv.config();
@@ -25,7 +34,7 @@ const app = express();
 connectDB();
 
 // ----------------------------------------------------
-// CORS Configuration - FIXED
+// CORS Configuration
 // ----------------------------------------------------
 const allowedOrigins = [
     process.env.FRONTEND_URL,
@@ -34,7 +43,7 @@ const allowedOrigins = [
     "http://localhost:8080",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:5173",
-    "http://localhost:3001"  // Added for Grafana access
+    "http://localhost:3001"
 ].filter(Boolean);
 
 const corsOptions = {
@@ -49,13 +58,8 @@ const corsOptions = {
     },
     credentials: true,
     allowedHeaders: [
-        "Content-Type", 
-        "Authorization", 
-        "Accept", 
-        "Origin", 
-        "X-Requested-With",
-        "X-Auth-Token",
-        "X-CSRF-Token"
+        "Content-Type", "Authorization", "Accept", "Origin", 
+        "X-Requested-With", "X-Auth-Token", "X-CSRF-Token"
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     maxAge: 86400,
@@ -65,7 +69,7 @@ app.use(dbMetricsMiddleware);
 app.use(cors(corsOptions));
 
 // ----------------------------------------------------
-// IMPROVED PROMETHEUS METRICS CONFIGURATION
+// Prometheus Metrics Middleware
 // ----------------------------------------------------
 const metricsMiddleware = promBundle({
   includeMethod: true,
@@ -94,83 +98,31 @@ const metricsMiddleware = promBundle({
 app.use(metricsMiddleware);
 
 // ----------------------------------------------------
-// CUSTOM METRICS (ENHANCED)
+// Active Users Tracking
 // ----------------------------------------------------
-const transactionCounter = new client.Counter({
-  name: "openbank_transactions_total",
-  help: "Total number of transactions",
-  labelNames: ["type", "account_type", "status", "currency"]
-});
-
-const activeUsersGauge = new client.Gauge({
-  name: "openbank_active_users_total",
-  help: "Number of active users in the last 15 minutes"
-});
-
-const httpRequestDuration = new client.Histogram({
-  name: "openbank_http_request_duration_custom_seconds",
-  help: "Custom duration of HTTP requests in seconds",
-  labelNames: ["method", "route", "status_code", "endpoint_type"],
-  buckets: [0.1, 0.3, 0.5, 1, 2, 5]
-});
-
-const databaseConnectionGauge = new client.Gauge({
-  name: "openbank_database_connection_status",
-  help: "Database connection status (1 = connected, 0 = disconnected)"
-});
-
-const errorCounter = new client.Counter({
-  name: "openbank_errors_total",
-  help: "Total number of errors",
-  labelNames: ["type", "endpoint", "status_code"]
-});
-
-const apiRequestsCounter = new client.Counter({
-  name: "openbank_api_requests_total",
-  help: "Total number of API requests",
-  labelNames: ["method", "endpoint", "status_code"]
-});
-
-const responseSizeHistogram = new client.Histogram({
-  name: "openbank_response_size_bytes",
-  help: "Size of HTTP responses in bytes",
-  labelNames: ["endpoint"],
-  buckets: [100, 500, 1000, 5000, 10000, 50000]
-});
-
-// Track active users (improved with timeout cleanup)
 let activeUsers = new Map();
 
-// ----------------------------------------------------
-// ENHANCED METRICS MIDDLEWARE
-// ----------------------------------------------------
+// Middleware to record metrics
 app.use((req, res, next) => {
   const start = Date.now();
   const originalSend = res.send;
   let responseBody = "";
-  
-  // Intercept response to measure size
+
   res.send = function(body) {
-    if (typeof body === "string") {
-      responseBody = body;
-    } else if (Buffer.isBuffer(body)) {
-      responseBody = body.toString();
-    } else if (typeof body === "object") {
-      responseBody = JSON.stringify(body);
-    }
+    if (typeof body === "string") responseBody = body;
+    else if (Buffer.isBuffer(body)) responseBody = body.toString();
+    else if (typeof body === "object") responseBody = JSON.stringify(body);
     return originalSend.call(this, body);
   };
-  
+
   res.on("finish", () => {
     const duration = (Date.now() - start) / 1000;
     const endpointType = req.path.startsWith("/api/") ? "api" : "system";
-    
-    // Record HTTP duration
+
     httpRequestDuration
       .labels(req.method, req.route?.path || req.path, res.statusCode, endpointType)
       .observe(duration);
-    
-    // Record API request count
+
     if (endpointType === "api") {
       apiRequestsCounter.inc({
         method: req.method,
@@ -178,65 +130,53 @@ app.use((req, res, next) => {
         status_code: res.statusCode
       });
     }
-    
-    // Record response size
+
     if (responseBody) {
       responseSizeHistogram
         .labels(req.path)
         .observe(Buffer.byteLength(responseBody, "utf8"));
     }
   });
-  
-  // Track active users with improved cleanup
+
   if (req.user && req.user.id) {
     const userId = req.user.id;
     activeUsers.set(userId, Date.now());
-    
-    // Clean up old entries
+
     const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
     for (const [id, timestamp] of activeUsers.entries()) {
-      if (timestamp < fifteenMinutesAgo) {
-        activeUsers.delete(id);
-      }
+      if (timestamp < fifteenMinutesAgo) activeUsers.delete(id);
     }
-    
+
     activeUsersGauge.set(activeUsers.size);
   }
-  
+
   next();
 });
 
+// ----------------------------------------------------
+// Database Connection Status
+// ----------------------------------------------------
 const updateDatabaseStatus = () => {
   const status = mongoose.connection.readyState === 1 ? 1 : 0;
   databaseConnectionGauge.set(status);
 };
 
-mongoose.connection.on("connected", () => {
-  console.log("Database connected - updating metrics");
-  updateDatabaseStatus();
-});
-
-mongoose.connection.on("disconnected", () => {
-  console.log("Database disconnected - updating metrics");
-  updateDatabaseStatus();
-});
+mongoose.connection.on("connected", () => updateDatabaseStatus());
+mongoose.connection.on("disconnected", () => updateDatabaseStatus());
 
 // ----------------------------------------------------
-// METRICS ENDPOINT (ENHANCED)
+// Metrics Endpoint
 // ----------------------------------------------------
 app.get("/metrics", async (req, res) => {
   try {
     res.set("Content-Type", client.register.contentType);
-    
-    // Update active users count before sending metrics
+
     const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
     for (const [id, timestamp] of activeUsers.entries()) {
-      if (timestamp < fifteenMinutesAgo) {
-        activeUsers.delete(id);
-      }
+      if (timestamp < fifteenMinutesAgo) activeUsers.delete(id);
     }
     activeUsersGauge.set(activeUsers.size);
-    
+
     const metrics = await client.register.metrics();
     res.end(metrics);
   } catch (error) {
@@ -247,13 +187,13 @@ app.get("/metrics", async (req, res) => {
 });
 
 // ----------------------------------------------------
-// ENHANCED HEALTH CHECK ENDPOINTS
+// Health Endpoints
 // ----------------------------------------------------
 app.get("/health", (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
   const uptime = process.uptime();
   const memoryUsage = process.memoryUsage();
-  
+
   res.status(200).json({
     status: "UP",
     timestamp: new Date().toISOString(),
@@ -271,77 +211,21 @@ app.get("/health", (req, res) => {
     },
     metrics: {
       endpoint: "/metrics",
-      activeUsers: activeUsers.size,
-      customMetrics: [
-        "openbank_transactions_total",
-        "openbank_active_users_total",
-        "openbank_errors_total",
-        "openbank_api_requests_total"
-      ]
+      activeUsers: activeUsers.size
     },
-    cors: {
-      allowedOrigins: allowedOrigins,
-      credentials: true
-    }
-  });
-});
-
-app.get("/health/liveness", (req, res) => {
-  res.status(200).json({ 
-    status: "ALIVE",
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.get("/health/readiness", (req, res) => {
-  const dbReady = mongoose.connection.readyState === 1;
-  
-  res.status(dbReady ? 200 : 503).json({
-    status: dbReady ? "READY" : "NOT_READY",
-    timestamp: new Date().toISOString(),
-    database: dbReady ? "connected" : "disconnected",
-    checks: {
-      database: dbReady
-    }
+    cors: { allowedOrigins, credentials: true }
   });
 });
 
 // ----------------------------------------------------
-// BODY PARSER MIDDLEWARE
+// Body Parser & Routes
 // ----------------------------------------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ----------------------------------------------------
-// API Routes
-// ----------------------------------------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/transactions", transactionRoutes);
-
-// ----------------------------------------------------
-// ENHANCED API HEALTH CHECK (keeping your existing)
-// ----------------------------------------------------
-app.get("/api/health", (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? "connected" : "disconnected";
-  const uptime = process.uptime();
-  
-  res.status(200).json({
-    status: "success",
-    message: "OpenBank API is running",
-    timestamp: new Date().toISOString(),
-    uptime: `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${Math.floor(uptime % 60)}s`,
-    database: dbStatus,
-    metrics: {
-      endpoint: "/metrics",
-      activeUsers: activeUsers.size
-    },
-    cors: {
-      allowedOrigins: allowedOrigins,
-      credentials: true
-    }
-  });
-});
 
 app.get("/api/test", (req, res) => {
   res.status(200).json({
@@ -352,50 +236,18 @@ app.get("/api/test", (req, res) => {
   });
 });
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "OpenBank Backend API",
-    version: "1.0.0",
-    endpoints: {
-      auth: "/api/auth",
-      users: "/api/user",
-      transactions: "/api/transactions",
-      health: {
-        root: "/health",
-        liveness: "/health/liveness",
-        readiness: "/health/readiness",
-        api: "/api/health"
-      },
-      test: "/api/test",
-      metrics: "/metrics"
-    },
-    cors: { allowedOrigins: allowedOrigins },
-    monitoring: {
-      prometheus: "/metrics",
-      grafana: "http://localhost:3001"
-    }
-  });
-});
-
 // ----------------------------------------------------
-// ENHANCED ERROR HANDLING MIDDLEWARE WITH METRICS
+// Error Handling
 // ----------------------------------------------------
 app.use((err, req, res, next) => {
   if (err.message.includes("CORS")) {
-    errorCounter.inc({ 
-      type: "cors_error", 
-      endpoint: req.path, 
-      status_code: 403 
-    });
-    return res.status(403).json({
-      status: "error",
-      message: "CORS Error: Request blocked. Check your frontend URL.",
-      allowedOrigins: allowedOrigins
-    });
+    errorCounter.inc({ type: "cors_error", endpoint: req.path, status_code: 403 });
+    return res.status(403).json({ status: "error", message: "CORS Error" });
   }
-  
+
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  
+  errorCounter.inc({ type: "server_error", endpoint: req.path, status_code:
+ 
   // Record error in metrics
   errorCounter.inc({ 
     type: "server_error", 
