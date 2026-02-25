@@ -2,7 +2,7 @@
 
 # OpenBank - Complete Banking System Documentation
 
-## 📋 Project Overview
+##  Project Overview
 
 OpenBank is a modern, secure, end-to-end digital banking system built with React (frontend), Node.js/Express (backend), and MongoDB. This project represents Weeks 1-2 of the development lifecycle, delivering a complete banking solution with authentication, account management, and transaction workflows.
 
@@ -209,7 +209,7 @@ console.log(crypto.randomBytes(32).toString('hex'));
 
 ---
 
-## 📡 API Documentation
+##  API Documentation
 
 ### Base URL
 - **Development**: `http://localhost:5000/api`
